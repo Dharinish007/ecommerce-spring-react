@@ -1,0 +1,19 @@
+# Spring Boot
+Ecom-backend/target/
+*.class
+*.log
+
+# React
+Ecom-frontend/node_modules/
+Ecom-frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
