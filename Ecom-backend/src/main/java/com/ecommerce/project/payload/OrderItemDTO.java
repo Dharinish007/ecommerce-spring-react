@@ -3,7 +3,8 @@ package com.ecommerce.project.payload;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.parameters.P;
+
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -12,6 +13,6 @@ public class OrderItemDTO {
     private Long orderItemId;
     private ProductDTO product;
     private Integer quantity;
-    private double discount;
-    private double orderedProductPrice;
+    private BigDecimal discount = BigDecimal.ZERO;
+    private BigDecimal orderedProductPrice = BigDecimal.ZERO;
 }

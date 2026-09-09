@@ -4,12 +4,13 @@ import com.ecommerce.project.payload.CategoryDTO;
 import com.ecommerce.project.payload.CategoryResponse;
 
 public interface CategoryService {
+    CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize,String sortBy,String sortOrder);
+    CategoryDTO getCategoryById(Long categoryId);
 
-    public CategoryDTO createCategory(CategoryDTO categoryDTO);
+    CategoryDTO createCategory(CategoryDTO categoryDTO);
 
-    public CategoryDTO deleteCategory(Long categoryId);
+    CategoryDTO deleteCategory(Long categoryId);
 
-    public CategoryDTO updateCategory(CategoryDTO categoryDTO,Long categoryId);
+    CategoryDTO updateCategory(CategoryDTO categoryDTO, Long categoryId);
 }

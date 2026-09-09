@@ -3,26 +3,28 @@ package com.ecommerce.project.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "payments")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "order")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long paymentId;
 
-    @OneToOne(mappedBy = "payment" , cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @OneToOne(mappedBy = "payment")
     private Order order;
 
     @NotBlank
-    @Size(min = 4, message = "Payment method must contain at-least 4 characters")
+    @Size(min = 3, message = "Payment method must contain at least 3 characters")
     private String paymentMethod;
 
     private String pgPaymentId;
@@ -30,11 +32,11 @@ public class Payment {
     private String pgResponseMessage;
     private String pgName;
 
-    public Payment(String paymentMethod,String pgPaymentId,String pgStatus,String pgResponseMessage,String pgName){
+    public Payment(String paymentMethod, String pgPaymentId, String pgStatus, String pgResponseMessage, String pgName) {
         this.paymentMethod = paymentMethod;
         this.pgPaymentId = pgPaymentId;
         this.pgStatus = pgStatus;
-        this.pgName = pgName;
         this.pgResponseMessage = pgResponseMessage;
+        this.pgName = pgName;
     }
 }

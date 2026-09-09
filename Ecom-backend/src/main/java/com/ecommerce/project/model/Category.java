@@ -1,21 +1,29 @@
 package com.ecommerce.project.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.*;
 
-@Entity(name = "categories")
-@Data
+@Entity
+@Table(name = "categories", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "category_name")
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
+    @EqualsAndHashCode.Include
     private Long categoryId;
 
-    @Column(name = "category_name")
+    @NotBlank
+    @Size(min = 3, message = "Category name must contain at least 3 characters")
+    @Column(name = "category_name", nullable = false, length = 100)
     private String categoryName;
-
 }

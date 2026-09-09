@@ -1,15 +1,17 @@
 package com.ecommerce.project.security.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequest {
-    @NotBlank
+    @NotBlank(message = "Username must not be blank")
     private String username;
-    @NotBlank
-    private String password;
 
+    @NotBlank(message = "Password must not be blank")
+    private String password;
 }

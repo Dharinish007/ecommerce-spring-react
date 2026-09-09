@@ -3,51 +3,51 @@ package com.ecommerce.project.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.*;
 
 @Entity
-@Table(name = "addresses")
-@Data
+@Table(name = "addresses", indexes = {
+        @Index(name = "idx_addresses_user_id", columnList = "user_id")
+})
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "user")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "address_id")
+    @EqualsAndHashCode.Include
     private Long addressId;
 
     @NotBlank
-    @Size(min = 5,message = "Street name must be at-least 5 characters")
+    @Size(min = 3, message = "Street name must contain at least 3 characters")
     private String street;
 
     @NotBlank
-    @Size(min = 5,message = "Building name name must be at-least 5 characters")
+    @Size(min = 2, message = "Building name must contain at least 2 characters")
     private String buildingName;
 
     @NotBlank
-    @Size(min = 4,message = "City name must be at-least characters")
+    @Size(min = 2, message = "City name must contain at least 2 characters")
     private String city;
 
     @NotBlank
-    @Size(min = 2,message = "State name must be at-least 2 characters")
+    @Size(min = 2, message = "State name must contain at least 2 characters")
     private String state;
 
     @NotBlank
-    @Size(min = 2,message = "Country name must be at-least 2 characters")
+    @Size(min = 2, message = "Country name must contain at least 2 characters")
     private String country;
 
     @NotBlank
-    @Size(min = 6,message = "Pincode name must be at-least 6 characters")
+    @Size(min = 4, message = "Pincode must contain at least 4 characters")
     private String pincode;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -59,5 +59,4 @@ public class Address {
         this.country = country;
         this.pincode = pincode;
     }
-
 }

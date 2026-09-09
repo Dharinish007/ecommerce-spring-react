@@ -1,9 +1,10 @@
 package com.ecommerce.project.payload;
 
-import com.ecommerce.project.model.Cart;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +14,6 @@ public class CartItemDTO {
     private CartDTO cart;
     private ProductDTO productDTO;
     private Integer quantity;
-    private Double discount;
-    private Double productPrice;
+    private BigDecimal discount = BigDecimal.ZERO;
+    private BigDecimal productPrice = BigDecimal.ZERO;
 }
