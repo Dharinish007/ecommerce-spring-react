@@ -1,5 +1,6 @@
 package com.ecommerce.project.service;
 
+import com.ecommerce.project.exception.APIException;
 import com.ecommerce.project.exception.ResourceNotFoundException;
 import com.ecommerce.project.model.Cart;
 import com.ecommerce.project.model.Category;
@@ -8,7 +9,9 @@ import com.ecommerce.project.payload.ProductDTO;
 import com.ecommerce.project.payload.ProductResponse;
 import com.ecommerce.project.repositories.CartRepository;
 import com.ecommerce.project.repositories.CategoryRepository;
+import com.ecommerce.project.repositories.OrderItemRepository;
 import com.ecommerce.project.repositories.ProductRepository;
+import com.ecommerce.project.util.SortUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -23,12 +26,18 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "productId", "productName", "price", "specialPrice", "discount", "quantity"
+    );
+
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
     private final CartService cartService;
     private final CartRepository cartRepository;
     private final ModelMapper modelMapper;
@@ -38,13 +47,15 @@ public class ProductServiceImpl implements ProductService {
     private String imagePath;
 
     public ProductServiceImpl(CategoryRepository categoryRepository,
-                              ProductRepository productRepository,
-                              CartService cartService,
-                              CartRepository cartRepository,
-                              ModelMapper modelMapper,
-                              FileService fileService) {
+                               ProductRepository productRepository,
+                               OrderItemRepository orderItemRepository,
+                               CartService cartService,
+                               CartRepository cartRepository,
+                               ModelMapper modelMapper,
+                               FileService fileService) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
+        this.orderItemRepository = orderItemRepository;
         this.cartService = cartService;
         this.cartRepository = cartRepository;
         this.modelMapper = modelMapper;
@@ -100,9 +111,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+        Sort sortByAndOrder = SortUtils.createSafeSort(sortBy, sortOrder, ALLOWED_SORT_FIELDS, "productId");
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
         Page<Product> productPage = productRepository.findAll(pageDetails);
 
@@ -127,9 +136,7 @@ public class ProductServiceImpl implements ProductService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+        Sort sortByAndOrder = SortUtils.createSafeSort(sortBy, sortOrder, ALLOWED_SORT_FIELDS, "productId");
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
         Page<Product> productPage = productRepository.findByCategory(category, pageDetails);
 
@@ -151,9 +158,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductResponse searchProductByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+        Sort sortByAndOrder = SortUtils.createSafeSort(sortBy, sortOrder, ALLOWED_SORT_FIELDS, "productId");
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
         Page<Product> productPage = productRepository.findByProductNameContainingIgnoreCase(keyword, pageDetails);
 
@@ -207,6 +212,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO deleteProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        if (orderItemRepository.existsByProductProductId(productId)) {
+            throw new APIException("Cannot delete product '" + product.getProductName()
+                    + "' as it is referenced in past customer orders. Please set its inventory stock to 0 instead.");
+        }
 
         List<Cart> carts = cartRepository.findCartsByProductId(productId);
         for (Cart cart : carts) {

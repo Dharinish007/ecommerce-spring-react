@@ -19,10 +19,10 @@ public class OpenAPIConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("E-Commerce Backend REST API")
+                        .title("Angadi E-Commerce REST API")
                         .version("1.0.0")
-                        .description("Hardened, production-grade Spring Boot e-commerce backend API with JWT authentication, cart management, checkout transaction safety, and order lifecycle management.")
-                        .contact(new Contact().name("Engineering Team").email("dev@ecommerce.com"))
+                        .description("High-performance, production-grade Spring Boot REST API for the Angadi Consumer Marketplace, featuring JWT authentication, RBAC, shopping cart, transactional checkout, inventory safety, allow-list sorting, and product catalog services.")
+                        .contact(new Contact().name("Angadi Engineering Team").email("engineering@angadi.com"))
                         .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()

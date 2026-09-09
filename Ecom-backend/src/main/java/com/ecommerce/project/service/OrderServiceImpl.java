@@ -6,6 +6,7 @@ import com.ecommerce.project.model.*;
 import com.ecommerce.project.payload.*;
 import com.ecommerce.project.repositories.*;
 import com.ecommerce.project.util.AuthUtil;
+import com.ecommerce.project.util.SortUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,9 +19,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "orderId", "orderDate", "totalAmount", "orderStatus"
+    );
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
@@ -120,8 +126,10 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.CONFIRMED);
         order.setAddress(address);
 
-        // 5. Create and configure Payment
-        Payment payment = new Payment(paymentMethod, pgPaymentId, pgStatus, pgResponseMessage, pgName);
+        // 5. Create and configure Payment with standardized payment method
+        PaymentMethod canonicalMethod = PaymentMethod.fromString(paymentMethod);
+        String resolvedPgStatus = (pgStatus != null && !pgStatus.isBlank()) ? pgStatus : PaymentStatus.SUCCESS.name();
+        Payment payment = new Payment(canonicalMethod.name(), pgPaymentId, resolvedPgStatus, pgResponseMessage, pgName);
         payment.setOrder(order);
         payment = paymentRepository.save(payment);
         order.setPayment(payment);
@@ -179,9 +187,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+        Sort sortByAndOrder = SortUtils.createSafeSort(sortBy, sortOrder, ALLOWED_SORT_FIELDS, "orderDate");
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
         Page<Order> orderPage = orderRepository.findAll(pageable);
@@ -201,9 +207,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderResponse getOrdersByUser(String emailId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+        Sort sortByAndOrder = SortUtils.createSafeSort(sortBy, sortOrder, ALLOWED_SORT_FIELDS, "orderDate");
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
         Page<Order> orderPage = orderRepository.findByEmail(emailId, pageable);

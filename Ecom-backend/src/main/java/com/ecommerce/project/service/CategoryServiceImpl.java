@@ -7,6 +7,7 @@ import com.ecommerce.project.payload.CategoryDTO;
 import com.ecommerce.project.payload.CategoryResponse;
 import com.ecommerce.project.repositories.CategoryRepository;
 import com.ecommerce.project.repositories.ProductRepository;
+import com.ecommerce.project.util.SortUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,9 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("categoryId", "categoryName");
 
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
@@ -35,9 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
-        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+        Sort sortByAndOrder = SortUtils.createSafeSort(sortBy, sortOrder, ALLOWED_SORT_FIELDS, "categoryId");
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
         Page<Category> categoryPage = categoryRepository.findAll(pageDetails);
 

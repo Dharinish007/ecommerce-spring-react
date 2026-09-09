@@ -7,9 +7,10 @@ Ecom-backend/target/
 Ecom-frontend/node_modules/
 Ecom-frontend/dist/
 
-# IDE
+# IDE & Agents
 .idea/
 .vscode/
+.agent/
 
 # OS
 .DS_Store
