@@ -1,0 +1,24 @@
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAppSelector } from "@/store/hooks";
+
+export const ProtectedRoute: React.FC = () => {
+  const location = useLocation();
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  return <Outlet />;
+};
+
+export default ProtectedRoute;
