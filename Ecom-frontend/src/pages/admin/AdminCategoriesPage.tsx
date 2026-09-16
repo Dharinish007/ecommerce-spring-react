@@ -164,7 +164,7 @@ export const AdminCategoriesPage: React.FC = () => {
                     <td className="py-4 px-6 text-right space-x-2">
                       <button
                         onClick={() => openEditModal(c)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-cyan-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors cursor-pointer"
                         title="Edit Category"
                       >
                         <Edit2 className="w-4 h-4" />

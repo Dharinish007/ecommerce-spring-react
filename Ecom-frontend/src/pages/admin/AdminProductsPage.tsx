@@ -337,14 +337,14 @@ export const AdminProductsPage: React.FC = () => {
                       <td className="py-4 px-6 text-right space-x-2">
                         <button
                           onClick={() => handleOpenImageUpload(p)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-cyan-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors cursor-pointer"
                           title="Upload Image"
                         >
                           <Upload className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleOpenEdit(p)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-cyan-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors cursor-pointer"
                           title="Edit Product"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -401,7 +401,7 @@ export const AdminProductsPage: React.FC = () => {
             <select
               value={formData.categoryId}
               onChange={(e) => setFormData((prev) => ({ ...prev, categoryId: e.target.value }))}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-cyan-500"
+              className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
             >
               {categories.map((c) => (
                 <option key={c.categoryId} value={c.categoryId}>
@@ -413,13 +413,13 @@ export const AdminProductsPage: React.FC = () => {
 
           <div className="grid grid-cols-3 gap-4">
             <Input
-              label="Price ($)"
+              label="Price (₹)"
               required
               type="number"
               step="0.01"
               value={formData.price}
               onChange={(e) => setFormData((prev) => ({ ...prev, price: e.target.value }))}
-              placeholder="1299.99"
+              placeholder="49999"
               error={formErrors.price}
             />
             <Input
@@ -453,8 +453,8 @@ export const AdminProductsPage: React.FC = () => {
               required
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              placeholder="Detailed product specifications..."
-              className="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm text-slate-900 focus:ring-2 focus:ring-cyan-500"
+              placeholder="Detailed product specifications and features..."
+              className="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
             />
             {formErrors.description && (
               <p className="text-xs text-red-600 font-medium">{formErrors.description}</p>
@@ -499,7 +499,7 @@ export const AdminProductsPage: React.FC = () => {
             <select
               value={formData.categoryId}
               onChange={(e) => setFormData((prev) => ({ ...prev, categoryId: e.target.value }))}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-cyan-500"
+              className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
             >
               {categories.map((c) => (
                 <option key={c.categoryId} value={c.categoryId}>
@@ -511,7 +511,7 @@ export const AdminProductsPage: React.FC = () => {
 
           <div className="grid grid-cols-3 gap-4">
             <Input
-              label="Price ($)"
+              label="Price (₹)"
               required
               type="number"
               step="0.01"
@@ -548,7 +548,7 @@ export const AdminProductsPage: React.FC = () => {
               required
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              className="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm text-slate-900 focus:ring-2 focus:ring-cyan-500"
+              className="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
             />
             {formErrors.description && (
               <p className="text-xs text-red-600 font-medium">{formErrors.description}</p>
@@ -592,7 +592,7 @@ export const AdminProductsPage: React.FC = () => {
                 setSelectedImageFile(e.target.files[0]);
               }
             }}
-            className="w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 cursor-pointer"
+            className="w-full text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-800 hover:file:bg-amber-100 cursor-pointer"
           />
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">

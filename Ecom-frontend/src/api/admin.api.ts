@@ -92,6 +92,24 @@ export const adminApi = {
     const response = await apiClient.get<AddressDTO[]>("/admin/addresses");
     return response.data;
   },
+
+  // User management
+  getAllUsers: async (): Promise<AdminUserDTO[]> => {
+    const response = await apiClient.get<AdminUserDTO[]>("/admin/users");
+    return response.data;
+  },
+
+  updateUserRoles: async (userId: number, roles: string[]): Promise<{ message: string }> => {
+    const response = await apiClient.put<{ message: string }>(`/admin/users/${userId}/roles`, roles);
+    return response.data;
+  },
 };
+
+export interface AdminUserDTO {
+  userId: number;
+  userName: string;
+  email: string;
+  roles: string[];
+}
 
 export default adminApi;

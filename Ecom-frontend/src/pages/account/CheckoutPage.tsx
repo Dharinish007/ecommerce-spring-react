@@ -22,7 +22,7 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
-  Truck,
+  QrCode,
 } from "lucide-react";
 
 export const CheckoutPage: React.FC = () => {
@@ -34,7 +34,7 @@ export const CheckoutPage: React.FC = () => {
 
   const [addresses, setAddresses] = useState<AddressDTO[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<string>("Credit Card");
+  const [paymentMethod, setPaymentMethod] = useState<string>("COD");
   const [isAddressesLoading, setIsAddressesLoading] = useState(true);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export const CheckoutPage: React.FC = () => {
     buildingName: "",
     city: "",
     state: "",
-    country: "USA",
+    country: "India",
     pincode: "",
   });
   const [addressErrors, setAddressErrors] = useState<{ [key: string]: string }>({});
@@ -78,20 +78,20 @@ export const CheckoutPage: React.FC = () => {
 
   const validateAddress = () => {
     const errs: { [key: string]: string } = {};
-    if (!newAddress.street.trim() || newAddress.street.length < 5) {
-      errs.street = "Street must be at least 5 characters";
+    if (!newAddress.buildingName.trim() || newAddress.buildingName.length < 3) {
+      errs.buildingName = "Building/Flat name must be at least 3 characters";
     }
-    if (!newAddress.buildingName.trim() || newAddress.buildingName.length < 5) {
-      errs.buildingName = "Building name must be at least 5 characters";
+    if (!newAddress.street.trim() || newAddress.street.length < 4) {
+      errs.street = "Street address must be at least 4 characters";
     }
-    if (!newAddress.city.trim() || newAddress.city.length < 4) {
-      errs.city = "City must be at least 4 characters";
+    if (!newAddress.city.trim() || newAddress.city.length < 3) {
+      errs.city = "City must be at least 3 characters";
     }
     if (!newAddress.state.trim() || newAddress.state.length < 2) {
-      errs.state = "State must be at least 2 characters";
+      errs.state = "State is required";
     }
     if (!newAddress.pincode.trim() || !/^\d{6}$/.test(newAddress.pincode.trim())) {
-      errs.pincode = "Pincode must be exactly 6 digits";
+      errs.pincode = "Please enter a valid 6-digit PIN code";
     }
     setAddressErrors(errs);
     return Object.keys(errs).length === 0;
@@ -103,21 +103,24 @@ export const CheckoutPage: React.FC = () => {
 
     setIsSavingAddress(true);
     try {
-      const saved = await addressApi.createAddress(newAddress);
-      dispatch(addToast({ type: "success", message: "Delivery address added successfully!" }));
+      const created = await addressApi.createAddress(newAddress);
+      setAddresses((prev) => [created, ...prev]);
+      setSelectedAddressId(created.addressId || null);
       setIsAddressModalOpen(false);
       setNewAddress({
         street: "",
         buildingName: "",
         city: "",
         state: "",
-        country: "USA",
+        country: "India",
         pincode: "",
       });
-      await loadAddresses();
-      if (saved.addressId) {
-        setSelectedAddressId(saved.addressId);
-      }
+      dispatch(
+        addToast({
+          type: "success",
+          message: "Delivery address added successfully.",
+        })
+      );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to save address.";
       dispatch(addToast({ type: "error", message: msg }));
@@ -130,12 +133,12 @@ export const CheckoutPage: React.FC = () => {
     setOrderError(null);
 
     if (!selectedAddressId) {
-      setOrderError("Please select or add a delivery address.");
+      setOrderError("Please select or add a delivery address to continue.");
       return;
     }
 
     if (!cart || !cart.products || cart.products.length === 0) {
-      setOrderError("Your cart is empty. Please add products before checking out.");
+      setOrderError("Your cart is empty. Please add items before checking out.");
       return;
     }
 
@@ -144,10 +147,10 @@ export const CheckoutPage: React.FC = () => {
       const orderRequest: OrderRequestDTO = {
         addressId: selectedAddressId,
         paymentMethod,
-        pgName: paymentMethod === "COD" ? "Cash On Delivery" : "Apex Gateway",
-        pgPaymentId: `TXN-${Date.now()}`,
+        pgName: paymentMethod === "COD" ? "Cash On Delivery" : "Angadi Pay",
+        pgPaymentId: `ANGADI-TXN-${Date.now()}`,
         pgStatus: "SUCCESS",
-        pgResponseMessage: "Payment processed successfully",
+        pgResponseMessage: "Payment confirmed successfully",
       };
 
       const order = await ordersApi.placeOrder(paymentMethod, orderRequest);
@@ -163,7 +166,8 @@ export const CheckoutPage: React.FC = () => {
 
       navigate(`/order-success/${order.orderId}`);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to place order. Please check stock.";
+      const msg =
+        err instanceof Error ? err.message : "Failed to place order. Please review item stock.";
       setOrderError(msg);
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
@@ -173,112 +177,118 @@ export const CheckoutPage: React.FC = () => {
 
   const products = cart?.products || [];
   const totalPrice = cart?.totalPrice || 0;
-  const isFreeShipping = totalPrice >= 50;
-  const shippingFee = isFreeShipping ? 0 : 9.99;
+  const isFreeShipping = totalPrice >= 499;
+  const shippingFee = isFreeShipping ? 0 : 49;
   const grandTotal = totalPrice + shippingFee;
 
   if (isCartLoading || isAddressesLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <Skeleton className="h-96 lg:col-span-2 rounded-3xl" />
-          <Skeleton className="h-96 rounded-3xl" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <Skeleton className="h-6 w-48" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Skeleton className="lg:col-span-2 h-96 rounded-xl" />
+          <Skeleton className="lg:col-span-1 h-80 rounded-xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Title */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          Checkout &amp; Order Placement
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Checkout &amp; Place Order
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Select your delivery address and preferred payment method
+        <p className="text-xs text-slate-500 mt-0.5">
+          Select delivery location, choose payment mode, and complete your order
         </p>
       </div>
 
       {orderError && (
-        <div
-          role="alert"
-          className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-3"
-        >
-          <AlertCircle className="w-5 h-5 shrink-0 text-red-600 mt-0.5" />
-          <div className="space-y-0.5">
-            <h4 className="font-bold">Unable to process order</h4>
-            <p className="leading-relaxed">{orderError}</p>
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-800 text-xs">
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold">Unable to process order</p>
+            <p className="mt-0.5">{orderError}</p>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Column: Address & Payment Selection */}
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Left 2 Cols: Steps */}
+        <div className="lg:col-span-2 space-y-6">
           {/* Step 1: Delivery Address */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-cyan-600 text-white flex items-center justify-center text-xs font-bold">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xs">
                   1
                 </div>
-                <h2 className="text-base font-bold text-slate-900">
+                <h2 className="text-sm font-bold text-slate-900">
                   Select Delivery Address
                 </h2>
               </div>
-
-              <Button
-                variant="outline"
-                size="sm"
+              <button
                 onClick={() => setIsAddressModalOpen(true)}
-                leftIcon={<Plus className="w-3.5 h-3.5" />}
+                className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 hover:text-amber-800 cursor-pointer"
               >
-                Add Address
-              </Button>
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add New Address</span>
+              </button>
             </div>
 
             {addresses.length === 0 ? (
-              <div className="text-center py-8 border border-dashed border-slate-200 rounded-2xl space-y-3">
+              <div className="p-6 text-center border border-dashed border-slate-300 rounded-xl space-y-3">
                 <MapPin className="w-8 h-8 text-slate-400 mx-auto" />
-                <p className="text-xs text-slate-600">No delivery address saved yet.</p>
+                <div>
+                  <p className="text-xs font-bold text-slate-700">No saved address found</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Please provide an address where we can deliver your order.
+                  </p>
+                </div>
                 <Button
-                  variant="primary"
+                  variant="outline"
                   size="sm"
                   onClick={() => setIsAddressModalOpen(true)}
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
                 >
-                  Create Your First Address
+                  Add Address Now
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {addresses.map((addr) => {
                   const isSelected = selectedAddressId === addr.addressId;
                   return (
                     <div
                       key={addr.addressId}
-                      onClick={() => setSelectedAddressId(addr.addressId || null)}
-                      className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                      onClick={() => addr.addressId && setSelectedAddressId(addr.addressId)}
+                      className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
                         isSelected
-                          ? "border-cyan-600 bg-cyan-50/40 shadow-xs"
+                          ? "border-amber-500 bg-amber-50/50 shadow-xs"
                           : "border-slate-200 hover:border-slate-300 bg-white"
                       }`}
                     >
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-900">
+                          <span className="font-bold text-xs text-slate-900">
                             {addr.buildingName}
                           </span>
                           {isSelected && (
-                            <CheckCircle2 className="w-4 h-4 text-cyan-600 shrink-0" />
+                            <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />
                           )}
                         </div>
                         <p className="text-xs text-slate-600">{addr.street}</p>
                         <p className="text-xs text-slate-600">
                           {addr.city}, {addr.state} - {addr.pincode}
                         </p>
-                        <p className="text-[11px] text-slate-400 font-semibold">{addr.country}</p>
+                        <p className="text-[10px] text-slate-400 font-semibold uppercase">
+                          {addr.country}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 text-[11px] font-bold text-amber-700">
+                        {isSelected ? "Delivering Here" : "Deliver to this address"}
                       </div>
                     </div>
                   );
@@ -287,71 +297,71 @@ export const CheckoutPage: React.FC = () => {
             )}
           </div>
 
-          {/* Step 2: Payment Method Selection */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-              <div className="w-7 h-7 rounded-lg bg-cyan-600 text-white flex items-center justify-center text-xs font-bold">
+          {/* Step 2: Payment Method */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+              <div className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xs">
                 2
               </div>
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-sm font-bold text-slate-900">
                 Payment Method
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Option 1: Card */}
-              <div
-                onClick={() => setPaymentMethod("Credit Card")}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 ${
-                  paymentMethod === "Credit Card"
-                    ? "border-cyan-600 bg-cyan-50/40 text-cyan-900 shadow-xs"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300"
-                }`}
-              >
-                <CreditCard className="w-6 h-6 text-cyan-600" />
-                <span className="text-xs font-bold">Credit / Debit Card</span>
-                <span className="text-[10px] text-slate-400">Instant Verification</span>
-              </div>
-
-              {/* Option 2: Cash on Delivery */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Option 1: Cash on Delivery */}
               <div
                 onClick={() => setPaymentMethod("COD")}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 ${
+                className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-1.5 ${
                   paymentMethod === "COD"
-                    ? "border-cyan-600 bg-cyan-50/40 text-cyan-900 shadow-xs"
+                    ? "border-amber-500 bg-amber-50/50 shadow-xs"
                     : "border-slate-200 text-slate-600 hover:border-slate-300"
                 }`}
               >
                 <Banknote className="w-6 h-6 text-emerald-600" />
-                <span className="text-xs font-bold">Cash On Delivery</span>
-                <span className="text-[10px] text-slate-400">Pay upon delivery</span>
+                <span className="text-xs font-bold text-slate-900">Cash on Delivery</span>
+                <span className="text-[10px] text-slate-500">Pay when order arrives</span>
               </div>
 
-              {/* Option 3: UPI / Net Banking */}
+              {/* Option 2: UPI */}
               <div
                 onClick={() => setPaymentMethod("UPI")}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 ${
+                className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-1.5 ${
                   paymentMethod === "UPI"
-                    ? "border-cyan-600 bg-cyan-50/40 text-cyan-900 shadow-xs"
+                    ? "border-amber-500 bg-amber-50/50 shadow-xs"
                     : "border-slate-200 text-slate-600 hover:border-slate-300"
                 }`}
               >
-                <ShieldCheck className="w-6 h-6 text-cyan-600" />
-                <span className="text-xs font-bold">UPI / Instant Pay</span>
-                <span className="text-[10px] text-slate-400">Direct Banking QR</span>
+                <QrCode className="w-6 h-6 text-amber-600" />
+                <span className="text-xs font-bold text-slate-900">UPI / QR Code</span>
+                <span className="text-[10px] text-slate-500">GPay, PhonePe, Paytm</span>
+              </div>
+
+              {/* Option 3: Card */}
+              <div
+                onClick={() => setPaymentMethod("Credit Card")}
+                className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-1.5 ${
+                  paymentMethod === "Credit Card"
+                    ? "border-amber-500 bg-amber-50/50 shadow-xs"
+                    : "border-slate-200 text-slate-600 hover:border-slate-300"
+                }`}
+              >
+                <CreditCard className="w-6 h-6 text-slate-800" />
+                <span className="text-xs font-bold text-slate-900">Credit / Debit Card</span>
+                <span className="text-[10px] text-slate-500">Visa, Mastercard, RuPay</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Order Items & Place Order Summary */}
-        <div className="lg:col-span-1 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-6">
-          <h2 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
-            Order Review ({products.length} items)
+        {/* Right Column: Order Items Review & Submission */}
+        <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-5">
+          <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100">
+            Order Review ({products.length} {products.length === 1 ? "item" : "items"})
           </h2>
 
           {/* Mini Items List */}
-          <div className="max-h-56 overflow-y-auto divide-y divide-slate-100 pr-1">
+          <div className="max-h-52 overflow-y-auto divide-y divide-slate-100 pr-1">
             {products.map((item) => (
               <div key={item.productId} className="py-2.5 flex items-center gap-3">
                 <img
@@ -361,7 +371,7 @@ export const CheckoutPage: React.FC = () => {
                   className="w-12 h-12 rounded-lg bg-slate-50 object-contain p-1 border border-slate-100 shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-slate-800 truncate">{item.productName}</p>
+                  <p className="text-xs font-bold text-slate-900 truncate">{item.productName}</p>
                   <p className="text-[11px] text-slate-500">
                     Qty: {item.quantity} ×{" "}
                     {formatPrice(
@@ -375,24 +385,24 @@ export const CheckoutPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="space-y-2.5 border-t border-slate-100 pt-4 text-xs">
+          <div className="space-y-2 border-t border-slate-100 pt-3 text-xs">
             <div className="flex justify-between text-slate-600">
               <span>Items Total</span>
-              <span className="font-semibold text-slate-800">{formatPrice(totalPrice)}</span>
+              <span className="font-semibold text-slate-900">{formatPrice(totalPrice)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Shipping Fee</span>
-              <span className="font-semibold text-slate-800">
+              <span>Delivery Fee</span>
+              <span className="font-semibold text-slate-900">
                 {isFreeShipping ? "FREE" : formatPrice(shippingFee)}
               </span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Payment Mode</span>
-              <span className="font-bold text-cyan-700">{paymentMethod}</span>
+              <span className="font-bold text-slate-900">{paymentMethod}</span>
             </div>
-            <div className="border-t border-slate-100 pt-3 flex justify-between items-baseline">
-              <span className="text-sm font-bold text-slate-900">Total Payable</span>
-              <span className="text-xl font-black text-cyan-700">{formatPrice(grandTotal)}</span>
+            <div className="border-t border-slate-100 pt-2.5 flex justify-between items-baseline">
+              <span className="text-sm font-bold text-slate-900">Order Total</span>
+              <span className="text-xl font-black text-slate-950">{formatPrice(grandTotal)}</span>
             </div>
           </div>
 
@@ -402,15 +412,15 @@ export const CheckoutPage: React.FC = () => {
             isLoading={isPlacingOrder}
             onClick={handlePlaceOrder}
             rightIcon={<ArrowRight className="w-4 h-4" />}
-            className="w-full shadow-md"
+            className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border-none shadow-xs"
           >
             Confirm &amp; Place Order
           </Button>
 
-          <div className="pt-2 text-[11px] text-slate-400 text-center space-y-1">
-            <p className="flex items-center justify-center gap-1">
-              <Truck className="w-3.5 h-3.5 text-cyan-600" />
-              Automated stock decrement &amp; reservation
+          <div className="pt-2 text-[11px] text-slate-500 text-center space-y-1">
+            <p className="flex items-center justify-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>100% Secure Checkout Guarantee</span>
             </p>
           </div>
         </div>
@@ -425,32 +435,32 @@ export const CheckoutPage: React.FC = () => {
       >
         <form onSubmit={handleCreateAddress} className="space-y-4">
           <Input
-            label="Building / Apartment / House Name"
+            label="Flat / House / Building Name"
             required
             value={newAddress.buildingName}
             onChange={(e) =>
               setNewAddress((prev) => ({ ...prev, buildingName: e.target.value }))
             }
-            placeholder="e.g. Skyline Tower, Apt 4B"
+            placeholder="e.g. Flat 302, Green Glen Residency"
             error={addressErrors.buildingName}
           />
 
           <Input
-            label="Street Address"
+            label="Street Address / Area / Locality"
             required
             value={newAddress.street}
             onChange={(e) => setNewAddress((prev) => ({ ...prev, street: e.target.value }))}
-            placeholder="e.g. 1044 Tech Park Boulevard"
+            placeholder="e.g. 100 Feet Ring Road, Indiranagar"
             error={addressErrors.street}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <Input
               label="City"
               required
               value={newAddress.city}
               onChange={(e) => setNewAddress((prev) => ({ ...prev, city: e.target.value }))}
-              placeholder="e.g. San Jose"
+              placeholder="e.g. Bengaluru"
               error={addressErrors.city}
             />
 
@@ -459,18 +469,18 @@ export const CheckoutPage: React.FC = () => {
               required
               value={newAddress.state}
               onChange={(e) => setNewAddress((prev) => ({ ...prev, state: e.target.value }))}
-              placeholder="e.g. CA"
+              placeholder="e.g. Karnataka"
               error={addressErrors.state}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <Input
-              label="6-Digit Pincode"
+              label="6-Digit PIN Code"
               required
               value={newAddress.pincode}
               onChange={(e) => setNewAddress((prev) => ({ ...prev, pincode: e.target.value }))}
-              placeholder="e.g. 951234"
+              placeholder="e.g. 560038"
               error={addressErrors.pincode}
             />
 
@@ -479,11 +489,11 @@ export const CheckoutPage: React.FC = () => {
               required
               value={newAddress.country}
               onChange={(e) => setNewAddress((prev) => ({ ...prev, country: e.target.value }))}
-              placeholder="e.g. USA"
+              placeholder="India"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
             <Button
               type="button"
               variant="outline"
@@ -491,8 +501,13 @@ export const CheckoutPage: React.FC = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" variant="primary" isLoading={isSavingAddress}>
-              Save &amp; Use Address
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={isSavingAddress}
+              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border-none"
+            >
+              Save Address
             </Button>
           </div>
         </form>

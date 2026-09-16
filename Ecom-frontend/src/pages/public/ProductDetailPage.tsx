@@ -13,6 +13,7 @@ import Skeleton from "@/components/common/Skeleton";
 import ErrorState from "@/components/common/ErrorState";
 import {
   ShoppingBag,
+  Zap,
   Check,
   ShieldCheck,
   Truck,
@@ -33,6 +34,7 @@ export const ProductDetailPage: React.FC = () => {
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +50,7 @@ export const ProductDetailPage: React.FC = () => {
       // Fetch related products from same category if available
       if (data.categoryId) {
         productsApi
-          .getProductsByCategory(data.categoryId, { pageSize: 4 })
+          .getProductsByCategory(data.categoryId, { pageSize: 5 })
           .then((res) => {
             const filtered = (res.content || []).filter(
               (p) => p.productId !== data.productId
@@ -72,10 +74,10 @@ export const ProductDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <Skeleton className="h-4 w-48" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <Skeleton className="h-96 rounded-2xl" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-6 rounded-2xl border border-slate-200">
+          <Skeleton className="h-96 rounded-xl" />
           <div className="space-y-4">
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-6 w-1/4" />
@@ -112,7 +114,10 @@ export const ProductDetailPage: React.FC = () => {
   } = product;
 
   const isAvailable = quantity > 0;
+  const isLowStock = isAvailable && quantity <= 5;
   const imageUrl = resolveProductImageUrl(image);
+  const effectivePrice = specialPrice && specialPrice < price ? specialPrice : price;
+  const savings = specialPrice && specialPrice < price ? price - specialPrice : 0;
 
   const handleQuantityDecrement = () => {
     if (selectedQuantity > 1) {
@@ -136,7 +141,7 @@ export const ProductDetailPage: React.FC = () => {
           message: "Please sign in to add items to your cart.",
         })
       );
-      navigate("/login");
+      navigate(`/login?redirect=/products/${product.productId}`);
       return;
     }
 
@@ -161,23 +166,51 @@ export const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const handleBuyNow = async () => {
+    if (!isAvailable) return;
+
+    if (!isAuthenticated) {
+      dispatch(
+        addToast({
+          type: "info",
+          message: "Please sign in to complete checkout.",
+        })
+      );
+      navigate(`/login?redirect=/checkout`);
+      return;
+    }
+
+    setIsBuyingNow(true);
+    try {
+      await dispatch(
+        addToCart({ productId: product.productId, quantity: selectedQuantity })
+      ).unwrap();
+      navigate("/checkout");
+    } catch (err: unknown) {
+      const msg = typeof err === "string" ? err : "Failed to proceed to checkout.";
+      dispatch(addToast({ type: "error", message: msg }));
+    } finally {
+      setIsBuyingNow(false);
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
-        <Link to="/" className="hover:text-cyan-600 transition-colors">
+        <Link to="/" className="hover:text-slate-900 transition-colors">
           Home
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <Link to="/products" className="hover:text-cyan-600 transition-colors">
-          Catalog
+        <Link to="/products" className="hover:text-slate-900 transition-colors">
+          Products
         </Link>
         {categoryName && (
           <>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
             <Link
               to={`/products?category=${categoryId}`}
-              className="hover:text-cyan-600 transition-colors"
+              className="hover:text-slate-900 transition-colors"
             >
               {categoryName}
             </Link>
@@ -187,159 +220,201 @@ export const ProductDetailPage: React.FC = () => {
         <span className="font-semibold text-slate-800 truncate max-w-xs">{productName}</span>
       </nav>
 
-      {/* Main Showcase */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-xs">
-        {/* Product Image Frame */}
-        <div className="relative h-96 sm:h-[450px] bg-slate-50 rounded-2xl flex items-center justify-center p-8 overflow-hidden border border-slate-100">
+      {/* Main Product Presentation */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+        {/* Product Image Stage */}
+        <div className="relative h-80 sm:h-[420px] bg-slate-50 rounded-xl flex items-center justify-center p-6 overflow-hidden border border-slate-100">
           <img
             src={imageUrl}
             alt={productName}
             onError={handleImageError}
-            className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 hover:scale-105"
+            className="w-full h-full object-contain mix-blend-multiply transition-transform duration-300 hover:scale-105"
           />
 
           {discount > 0 && (
             <div className="absolute top-4 right-4">
-              <span className="px-3 py-1 rounded-full text-xs font-black bg-red-600 text-white shadow-sm">
+              <span className="px-2.5 py-1 rounded-md text-xs font-black bg-red-600 text-white shadow-xs">
                 {formatDiscount(discount)}
               </span>
             </div>
           )}
         </div>
 
-        {/* Product Information */}
+        {/* Product Information Column */}
         <div className="space-y-6">
           <div>
             {categoryName && (
-              <span className="text-xs font-bold uppercase tracking-wider text-cyan-600">
+              <Link
+                to={`/products?category=${categoryId}`}
+                className="text-xs font-bold uppercase tracking-wider text-amber-700 hover:underline"
+              >
                 {categoryName}
-              </span>
+              </Link>
             )}
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1 leading-snug">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1 leading-snug">
               {productName}
             </h1>
           </div>
 
           {/* Pricing Block */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                Total Price
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <div className="flex items-baseline gap-3">
+              <span className="text-3xl font-black text-slate-950">
+                {formatPrice(effectivePrice)}
               </span>
-              <div className="flex items-baseline gap-3 mt-1">
-                {specialPrice && specialPrice < price ? (
-                  <>
-                    <span className="text-3xl font-black text-emerald-600">
-                      {formatPrice(specialPrice)}
-                    </span>
-                    <span className="text-base text-slate-400 line-through font-medium">
-                      {formatPrice(price)}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-3xl font-black text-slate-900">
-                    {formatPrice(price)}
-                  </span>
-                )}
-              </div>
+              {specialPrice && specialPrice < price && (
+                <span className="text-sm text-slate-400 line-through font-medium">
+                  M.R.P: {formatPrice(price)}
+                </span>
+              )}
+              {discount > 0 && (
+                <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200">
+                  Save {formatPrice(savings)} ({Math.round(discount)}% off)
+                </span>
+              )}
             </div>
 
-            <div>
+            <div className="text-[11px] text-slate-500">
+              Inclusive of all taxes. Free shipping available on eligible orders.
+            </div>
+
+            {/* Stock State */}
+            <div className="pt-2">
               <span
-                className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-xs ${
-                  isAvailable
-                    ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                    : "bg-red-100 text-red-800 border border-red-200"
+                className={`inline-block px-2.5 py-1 rounded text-xs font-bold tracking-wide uppercase ${
+                  !isAvailable
+                    ? "bg-red-100 text-red-800 border border-red-200"
+                    : isLowStock
+                    ? "bg-amber-100 text-amber-900 border border-amber-300"
+                    : "bg-emerald-100 text-emerald-800 border border-emerald-200"
                 }`}
               >
-                {isAvailable ? `${quantity} Available In Stock` : "Out of Stock"}
+                {!isAvailable
+                  ? "Currently Unavailable"
+                  : isLowStock
+                  ? `Only ${quantity} units left in stock - order soon`
+                  : "In Stock - Ready for Dispatch"}
               </span>
             </div>
           </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Product Overview
+          {/* Product Overview / Description */}
+          <div className="space-y-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Description &amp; Specifications
             </h3>
-            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line">
               {description}
             </p>
           </div>
 
-          {/* Quantity and Add-to-Cart */}
+          {/* Quantity and Actions */}
           <div className="space-y-4 pt-4 border-t border-slate-100">
             {isAvailable ? (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                {/* Quantity Control */}
-                <div className="flex items-center border border-slate-300 rounded-xl bg-white shadow-xs">
-                  <button
-                    onClick={handleQuantityDecrement}
-                    disabled={selectedQuantity <= 1}
-                    className="p-3 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="px-4 text-sm font-bold text-slate-900 select-none min-w-10 text-center">
-                    {selectedQuantity}
-                  </span>
-                  <button
-                    onClick={handleQuantityIncrement}
-                    disabled={selectedQuantity >= quantity}
-                    className="p-3 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                    aria-label="Increase quantity"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-slate-700">Quantity:</span>
+                  <div className="flex items-center border border-slate-300 rounded-lg bg-white">
+                    <button
+                      onClick={handleQuantityDecrement}
+                      disabled={selectedQuantity <= 1}
+                      className="p-2 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="px-3 text-xs font-bold text-slate-900 select-none min-w-8 text-center">
+                      {selectedQuantity}
+                    </span>
+                    <button
+                      onClick={handleQuantityIncrement}
+                      disabled={selectedQuantity >= quantity}
+                      className="p-2 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
-                {/* Primary Add Button */}
-                <Button
-                  variant="primary"
-                  size="lg"
-                  isLoading={isAdding}
-                  onClick={handleAddToCart}
-                  leftIcon={
-                    isSuccess ? <Check className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />
-                  }
-                  className={`flex-1 ${isSuccess ? "bg-emerald-600 hover:bg-emerald-700" : ""}`}
-                >
-                  {isSuccess ? "Added to Shopping Cart!" : "Add to Cart"}
-                </Button>
+                {/* Buttons */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    isLoading={isAdding}
+                    onClick={handleAddToCart}
+                    leftIcon={
+                      isSuccess ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />
+                    }
+                    className={`flex-1 ${
+                      isSuccess ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-900 hover:bg-slate-800 text-white"
+                    }`}
+                  >
+                    {isSuccess ? "Added to Cart!" : "Add to Cart"}
+                  </Button>
+
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    isLoading={isBuyingNow}
+                    onClick={handleBuyNow}
+                    leftIcon={<Zap className="w-4 h-4 text-slate-950" />}
+                    className="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border-none"
+                  >
+                    Buy Now
+                  </Button>
+                </div>
               </div>
             ) : (
-              <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm font-medium border border-red-200">
-                This item is currently sold out. Check back later for restock alerts.
+              <div className="p-3.5 rounded-lg bg-red-50 text-red-700 text-xs font-semibold border border-red-200">
+                This item is currently sold out. We restock our catalog daily.
               </div>
             )}
           </div>
 
-          {/* Guarantees Matrix */}
-          <div className="grid grid-cols-3 gap-3 pt-6 border-t border-slate-100 text-slate-600">
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-cyan-600 shrink-0" />
-              <span className="text-[11px] font-medium">Fast Dispatch</span>
+          {/* Genuine Marketplace Guarantees Matrix */}
+          <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 text-slate-600">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50">
+              <Truck className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="text-[11px] leading-tight">
+                <span className="font-bold block text-slate-800">Fast Delivery</span>
+                <span className="text-slate-500">Across India</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-cyan-600 shrink-0" />
-              <span className="text-[11px] font-medium">1 Year Warranty</span>
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="text-[11px] leading-tight">
+                <span className="font-bold block text-slate-800">100% Genuine</span>
+                <span className="text-slate-500">Brand Warranty</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <RotateCcw className="w-4 h-4 text-cyan-600 shrink-0" />
-              <span className="text-[11px] font-medium">30-Day Returns</span>
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50">
+              <RotateCcw className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="text-[11px] leading-tight">
+                <span className="font-bold block text-slate-800">7 Days</span>
+                <span className="text-slate-500">Easy Replacement</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Related Products */}
+      {/* Related Products Rail */}
       {relatedProducts.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">
-            Related Products in {categoryName}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+              Related Products in {categoryName}
+            </h2>
+            <Link
+              to={`/products?category=${categoryId}`}
+              className="text-xs font-bold text-amber-700 hover:underline"
+            >
+              See more in category
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {relatedProducts.map((rel) => (
               <ProductCard key={rel.productId} product={rel} />
             ))}

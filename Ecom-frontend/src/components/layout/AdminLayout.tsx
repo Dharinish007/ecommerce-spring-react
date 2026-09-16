@@ -8,11 +8,12 @@ import {
   Package,
   FolderTree,
   ShoppingCart,
+  Users,
   Store,
   LogOut,
   Menu,
   X,
-  ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
 
 export const AdminLayout: React.FC = () => {
@@ -32,6 +33,7 @@ export const AdminLayout: React.FC = () => {
     { name: "Products", to: "/admin/products", icon: <Package className="w-5 h-5" /> },
     { name: "Categories", to: "/admin/categories", icon: <FolderTree className="w-5 h-5" /> },
     { name: "Orders", to: "/admin/orders", icon: <ShoppingCart className="w-5 h-5" /> },
+    { name: "Users & Roles", to: "/admin/users", icon: <Users className="w-5 h-5" /> },
   ];
 
   return (
@@ -52,13 +54,15 @@ export const AdminLayout: React.FC = () => {
       >
         {/* Sidebar Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-cyan-500 flex items-center justify-center text-slate-950 font-black">
-              A
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-black text-base shadow-sm">
+              अ
             </div>
             <div>
-              <span className="font-bold text-white tracking-tight">Admin Console</span>
-              <span className="block text-[10px] text-cyan-400 font-medium">Enterprise Backoffice</span>
+              <span className="font-black text-white tracking-tight text-base">ANGADI</span>
+              <span className="block text-[10px] text-amber-400 font-semibold tracking-wide uppercase">
+                Admin Console
+              </span>
             </div>
           </div>
           <button
@@ -80,7 +84,7 @@ export const AdminLayout: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-cyan-600 text-white shadow-xs font-semibold"
+                    ? "bg-amber-500 text-slate-950 shadow-xs font-bold"
                     : "text-slate-400 hover:text-white hover:bg-slate-800"
                 }`
               }
@@ -123,16 +127,16 @@ export const AdminLayout: React.FC = () => {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-cyan-600 hidden sm:inline-block" />
-              <h1 className="text-sm font-bold text-slate-800">Admin Management Portal</h1>
+              <ShieldCheck className="w-5 h-5 text-amber-600 hidden sm:inline-block" />
+              <h1 className="text-sm font-bold text-slate-800">Angadi Store Management</h1>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500 hidden sm:inline-block">Logged in as:</span>
+            <span className="text-xs text-slate-500 hidden sm:inline-block">Signed in as:</span>
             <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
               <span className="text-xs font-bold text-slate-800">{user?.username}</span>
-              <span className="text-[10px] bg-cyan-100 text-cyan-800 font-extrabold px-1.5 py-0.5 rounded">
+              <span className="text-[10px] bg-amber-100 text-amber-900 font-extrabold px-1.5 py-0.5 rounded">
                 ADMIN
               </span>
             </div>

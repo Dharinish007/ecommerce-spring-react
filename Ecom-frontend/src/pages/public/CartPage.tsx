@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Truck,
   RotateCcw,
+  CheckCircle2,
 } from "lucide-react";
 
 export const CartPage: React.FC = () => {
@@ -37,8 +38,8 @@ export const CartPage: React.FC = () => {
       <div className="max-w-3xl mx-auto px-4 py-16">
         <EmptyState
           title="Sign in to view your shopping cart"
-          description="Your cart items are securely saved to your account. Sign in now to view and complete your orders."
-          icon={<ShoppingBag className="w-8 h-8 text-cyan-600" />}
+          description="Your cart items are securely saved to your Angadi account. Sign in now to view and complete your purchase."
+          icon={<ShoppingBag className="w-8 h-8 text-amber-600" />}
           actionLabel="Sign In Now"
           onAction={() => navigate("/login?redirect=/cart")}
         />
@@ -48,7 +49,7 @@ export const CartPage: React.FC = () => {
 
   if (isLoading && !cart) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div className="h-8 w-48 bg-slate-200 animate-pulse rounded-lg" />
         <TableSkeleton rows={4} />
       </div>
@@ -57,9 +58,10 @@ export const CartPage: React.FC = () => {
 
   const products = cart?.products || [];
   const totalPrice = cart?.totalPrice || 0;
-  const isFreeShipping = totalPrice >= 50;
-  const shippingFee = isFreeShipping ? 0 : 9.99;
+  const isFreeShipping = totalPrice >= 499;
+  const shippingFee = isFreeShipping ? 0 : 49;
   const grandTotal = totalPrice + shippingFee;
+  const totalItemCount = products.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleUpdateQuantity = async (
     productId: number,
@@ -89,9 +91,9 @@ export const CartPage: React.FC = () => {
       <div className="max-w-3xl mx-auto px-4 py-16">
         <EmptyState
           title="Your shopping cart is empty"
-          description="Looks like you haven't added any enterprise electronics to your cart yet. Explore our verified hardware collection today."
+          description="Your cart is currently empty. Explore top deals on mobiles, laptops, audio, and everyday essentials on Angadi."
           icon={<ShoppingBag className="w-8 h-8 text-slate-400" />}
-          actionLabel="Start Shopping"
+          actionLabel="Shop Today's Deals"
           onAction={() => navigate("/products")}
         />
       </div>
@@ -99,27 +101,27 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Page Title */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Page Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          Shopping Cart
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Shopping Cart ({totalItemCount} {totalItemCount === 1 ? "item" : "items"})
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Review your selected products and proceed to secure checkout
+        <p className="text-xs text-slate-500 mt-0.5">
+          Review your selected items and proceed to fast, secure checkout
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Cart Item List */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
-          <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-800">
-              Cart Items ({products.length})
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-slate-900">
+              Cart Items
             </h2>
             <Link
               to="/products"
-              className="text-xs font-semibold text-cyan-600 hover:text-cyan-700"
+              className="text-xs font-semibold text-amber-700 hover:text-amber-800"
             >
               Continue Shopping
             </Link>
@@ -137,13 +139,13 @@ export const CartPage: React.FC = () => {
               return (
                 <div
                   key={item.productId}
-                  className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors hover:bg-slate-50/50"
+                  className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors hover:bg-slate-50/50"
                 >
-                  {/* Thumbnail & Name */}
-                  <div className="flex items-center gap-4 flex-1">
+                  {/* Thumbnail & Title */}
+                  <div className="flex items-center gap-3.5 flex-1 min-w-0">
                     <Link
                       to={`/products/${item.productId}`}
-                      className="w-20 h-20 bg-slate-50 rounded-xl p-2 border border-slate-100 shrink-0 flex items-center justify-center overflow-hidden"
+                      className="w-18 h-18 bg-slate-50 rounded-lg p-2 border border-slate-100 shrink-0 flex items-center justify-center overflow-hidden"
                     >
                       <img
                         src={imageUrl}
@@ -153,45 +155,50 @@ export const CartPage: React.FC = () => {
                       />
                     </Link>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1 min-w-0">
                       {item.categoryName && (
-                        <span className="text-[10px] font-bold text-cyan-600 uppercase tracking-wider block">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block truncate">
                           {item.categoryName}
                         </span>
                       )}
                       <Link
                         to={`/products/${item.productId}`}
-                        className="text-sm font-bold text-slate-900 hover:text-cyan-600 transition-colors line-clamp-1"
+                        className="text-xs sm:text-sm font-bold text-slate-900 hover:text-amber-700 transition-colors line-clamp-2"
                       >
                         {item.productName}
                       </Link>
-                      <div className="text-xs font-medium text-slate-500">
-                        Unit Price:{" "}
-                        <span className="font-semibold text-slate-800">
+                      <div className="text-xs text-slate-500">
+                        Price:{" "}
+                        <span className="font-bold text-slate-900">
                           {formatPrice(itemPrice)}
                         </span>
+                        {item.specialPrice && item.specialPrice < item.price && (
+                          <span className="text-[11px] text-slate-400 line-through ml-1.5">
+                            {formatPrice(item.price)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Quantity Controller */}
-                  <div className="flex items-center gap-6 self-end sm:self-center">
-                    <div className="flex items-center border border-slate-200 rounded-xl bg-white shadow-2xs">
+                  {/* Quantity & Actions */}
+                  <div className="flex items-center gap-4 sm:gap-6 self-end sm:self-center shrink-0">
+                    <div className="flex items-center border border-slate-200 rounded-lg bg-white">
                       <button
                         onClick={() => handleUpdateQuantity(item.productId, "decrement")}
                         disabled={isUpdating}
-                        className="p-2 text-slate-500 hover:text-slate-800 disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 text-slate-500 hover:text-slate-800 disabled:opacity-30 cursor-pointer"
                         aria-label="Decrease quantity"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="px-3 text-xs font-bold text-slate-900 min-w-8 text-center select-none">
+                      <span className="px-2.5 text-xs font-bold text-slate-900 min-w-7 text-center select-none">
                         {item.quantity}
                       </span>
                       <button
                         onClick={() => handleUpdateQuantity(item.productId, "increment")}
                         disabled={isUpdating}
-                        className="p-2 text-slate-500 hover:text-slate-800 disabled:opacity-30 cursor-pointer"
+                        className="p-1.5 text-slate-500 hover:text-slate-800 disabled:opacity-30 cursor-pointer"
                         aria-label="Increase quantity"
                       >
                         <Plus className="w-3.5 h-3.5" />
@@ -199,8 +206,8 @@ export const CartPage: React.FC = () => {
                     </div>
 
                     {/* Subtotal */}
-                    <div className="text-right min-w-20">
-                      <span className="text-sm font-black text-slate-900 block">
+                    <div className="text-right min-w-18">
+                      <span className="text-sm font-extrabold text-slate-950 block">
                         {formatPrice(itemTotal)}
                       </span>
                     </div>
@@ -209,7 +216,7 @@ export const CartPage: React.FC = () => {
                     <button
                       onClick={() => handleRemoveItem(item.productId)}
                       disabled={isUpdating}
-                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                       aria-label="Remove item"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -222,44 +229,50 @@ export const CartPage: React.FC = () => {
         </div>
 
         {/* Order Summary Box */}
-        <div className="lg:col-span-1 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-6">
-          <h2 className="text-base font-bold text-slate-900 pb-4 border-b border-slate-100">
+        <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-5">
+          <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100">
             Order Summary
           </h2>
 
           {/* Shipping Threshold banner */}
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1 text-xs">
             <div className="flex items-center justify-between font-semibold">
               <span className="text-slate-700 flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-cyan-600" />
-                Delivery Standard
+                <Truck className="w-4 h-4 text-amber-600" />
+                Delivery
               </span>
-              <span className={isFreeShipping ? "text-emerald-600 font-bold" : "text-slate-600"}>
-                {isFreeShipping ? "FREE" : "$9.99"}
+              <span className={isFreeShipping ? "text-emerald-700 font-bold" : "text-slate-700"}>
+                {isFreeShipping ? "FREE" : "₹49"}
               </span>
             </div>
             {!isFreeShipping && (
-              <p className="text-[11px] text-slate-500">
-                Add <span className="font-bold text-cyan-600">{formatPrice(50 - totalPrice)}</span>{" "}
-                more to unlock Free Standard Shipping!
+              <p className="text-[11px] text-slate-600">
+                Add <span className="font-bold text-amber-700">{formatPrice(499 - totalPrice)}</span>{" "}
+                more to unlock Free Delivery!
+              </p>
+            )}
+            {isFreeShipping && (
+              <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                Your order is eligible for Free Delivery
               </p>
             )}
           </div>
 
-          <div className="space-y-3 text-xs">
+          <div className="space-y-2.5 text-xs">
             <div className="flex justify-between text-slate-600">
-              <span>Items Subtotal</span>
+              <span>Subtotal ({totalItemCount} items)</span>
               <span className="font-semibold text-slate-900">{formatPrice(totalPrice)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Estimated Shipping</span>
+              <span>Delivery Fee</span>
               <span className="font-semibold text-slate-900">
                 {isFreeShipping ? "FREE" : formatPrice(shippingFee)}
               </span>
             </div>
             <div className="border-t border-slate-100 pt-3 flex justify-between items-baseline">
-              <span className="text-sm font-bold text-slate-900">Estimated Total</span>
-              <span className="text-xl font-black text-cyan-700">{formatPrice(grandTotal)}</span>
+              <span className="text-sm font-bold text-slate-900">Order Total</span>
+              <span className="text-xl font-black text-slate-950">{formatPrice(grandTotal)}</span>
             </div>
           </div>
 
@@ -268,19 +281,19 @@ export const CartPage: React.FC = () => {
             size="lg"
             onClick={() => navigate("/checkout")}
             rightIcon={<ArrowRight className="w-4 h-4" />}
-            className="w-full shadow-md"
+            className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-xs border-none"
           >
-            Proceed to Checkout
+            Proceed to Buy ({totalItemCount} {totalItemCount === 1 ? "item" : "items"})
           </Button>
 
           <div className="pt-2 border-t border-slate-100 space-y-2 text-[11px] text-slate-500">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Verified TLS-encrypted checkout</span>
+              <span>Safe &amp; Secure Checkout</span>
             </div>
             <div className="flex items-center gap-2">
-              <RotateCcw className="w-4 h-4 text-cyan-600 shrink-0" />
-              <span>30-day money-back guarantee</span>
+              <RotateCcw className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>7 Days Replacement Policy</span>
             </div>
           </div>
         </div>

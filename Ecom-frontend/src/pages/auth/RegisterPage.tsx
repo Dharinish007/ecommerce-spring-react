@@ -5,7 +5,7 @@ import { registerUser, clearAuthError } from "@/store/slices/authSlice";
 import { addToast } from "@/store/slices/uiSlice";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
-import { Lock, User, Mail, AlertCircle, ShieldCheck } from "lucide-react";
+import { Lock, User, Mail, AlertCircle, ShoppingBag, ShieldCheck } from "lucide-react";
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -68,18 +68,18 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 shadow-xl space-y-6">
-        {/* Header */}
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-600 text-white font-black text-2xl shadow-md mb-2">
-            A
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-2xl shadow-xs mb-1">
+            <ShoppingBag className="w-6 h-6 fill-slate-950" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Create an Account
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight font-serif">
+            Create Your Angadi Account
           </h1>
           <p className="text-xs text-slate-500">
-            Join ApexStore to place orders and manage enterprise deliveries
+            Sign up to track orders, manage addresses, and shop effortlessly
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export const RegisterPage: React.FC = () => {
         {error && (
           <div
             role="alert"
-            className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2.5"
+            className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2.5"
           >
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <p className="leading-relaxed font-medium">{error}</p>
@@ -97,13 +97,13 @@ export const RegisterPage: React.FC = () => {
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Username"
+            label="Your Name / Username"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Choose a username"
+            placeholder="e.g. rahul_kumar"
             error={validationErrors.username}
-            leftIcon={<User className="w-4 h-4" />}
+            leftIcon={<User className="w-4 h-4 text-slate-400" />}
             autoComplete="username"
           />
 
@@ -115,7 +115,7 @@ export const RegisterPage: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             error={validationErrors.email}
-            leftIcon={<Mail className="w-4 h-4" />}
+            leftIcon={<Mail className="w-4 h-4 text-slate-400" />}
             autoComplete="email"
           />
 
@@ -127,7 +127,7 @@ export const RegisterPage: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="At least 6 characters"
             error={validationErrors.password}
-            leftIcon={<Lock className="w-4 h-4" />}
+            leftIcon={<Lock className="w-4 h-4 text-slate-400" />}
             autoComplete="new-password"
           />
 
@@ -137,9 +137,9 @@ export const RegisterPage: React.FC = () => {
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm your password"
+            placeholder="Re-enter password"
             error={validationErrors.confirmPassword}
-            leftIcon={<Lock className="w-4 h-4" />}
+            leftIcon={<Lock className="w-4 h-4 text-slate-400" />}
             autoComplete="new-password"
           />
 
@@ -148,7 +148,7 @@ export const RegisterPage: React.FC = () => {
             variant="primary"
             size="lg"
             isLoading={isLoading}
-            className="w-full mt-2"
+            className="w-full mt-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border-none"
           >
             Create Account
           </Button>
@@ -159,15 +159,15 @@ export const RegisterPage: React.FC = () => {
           <span>Already have an account? </span>
           <Link
             to={redirectUrl !== "/" ? `/login?redirect=${redirectUrl}` : "/login"}
-            className="font-bold text-cyan-600 hover:text-cyan-700 transition-colors"
+            className="font-bold text-amber-700 hover:text-amber-800 transition-colors"
           >
             Sign In
           </Link>
         </div>
 
-        <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400">
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Role defaults securely to standard customer</span>
+          <span>By continuing, you agree to Angadi Terms &amp; Conditions</span>
         </div>
       </div>
     </div>

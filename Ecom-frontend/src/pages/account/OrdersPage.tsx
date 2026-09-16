@@ -8,7 +8,7 @@ import Pagination from "@/components/common/Pagination";
 import EmptyState from "@/components/common/EmptyState";
 import { TableSkeleton } from "@/components/common/Skeleton";
 import ErrorState from "@/components/common/ErrorState";
-import { Package, Eye, Calendar, CreditCard } from "lucide-react";
+import { Package, Eye, Calendar, CreditCard, ChevronRight } from "lucide-react";
 
 export const OrdersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,14 +56,23 @@ export const OrdersPage: React.FC = () => {
   const orders = orderData?.content || [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Title */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-1.5 text-xs text-slate-500" aria-label="Breadcrumb">
+        <Link to="/" className="hover:text-slate-900 transition-colors">
+          Home
+        </Link>
+        <ChevronRight className="w-3.5 h-3.5" />
+        <span className="font-semibold text-slate-900">Your Orders</span>
+      </nav>
+
+      {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          My Orders
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Your Orders
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Track shipments, view detailed invoices, and monitor order fulfillment
+        <p className="text-xs text-slate-500 mt-0.5">
+          Track shipments, review past purchases, and monitor delivery progress
         </p>
       </div>
 
@@ -74,9 +83,9 @@ export const OrdersPage: React.FC = () => {
       ) : orders.length === 0 ? (
         <EmptyState
           title="No orders placed yet"
-          description="You have not placed any orders with ApexStore yet. Start exploring our verified electronics catalog."
+          description="You haven't placed any orders on Angadi yet. Discover our top offers on mobiles, electronics, and daily essentials."
           icon={<Package className="w-8 h-8 text-slate-400" />}
-          actionLabel="Explore Catalog"
+          actionLabel="Start Shopping"
           onAction={() => navigate("/products")}
         />
       ) : (
@@ -85,14 +94,14 @@ export const OrdersPage: React.FC = () => {
             {orders.map((order: OrderDTO) => (
               <div
                 key={order.orderId}
-                className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs hover:border-slate-300 transition-all space-y-4"
+                className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition-all space-y-4"
               >
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
-                  <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-center gap-2">
-                      <Package className="w-5 h-5 text-cyan-600" />
-                      <span className="text-base font-bold text-slate-900">
+                      <Package className="w-4 h-4 text-amber-600" />
+                      <span className="text-sm font-bold text-slate-900">
                         Order #{order.orderId}
                       </span>
                     </div>
@@ -101,50 +110,50 @@ export const OrdersPage: React.FC = () => {
 
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <span className="text-[11px] text-slate-400 font-semibold uppercase block">
-                        Total
+                      <span className="text-[10px] text-slate-400 font-semibold uppercase block">
+                        Order Total
                       </span>
-                      <span className="text-base font-black text-cyan-700">
+                      <span className="text-sm font-black text-slate-950">
                         {formatPrice(order.totalAmount)}
                       </span>
                     </div>
 
                     <Link
                       to={`/orders/${order.orderId}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-cyan-600 transition-colors shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-amber-800 transition-colors shadow-2xs"
                     >
-                      <Eye className="w-4 h-4" />
-                      <span>Details</span>
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>View Details</span>
                     </Link>
                   </div>
                 </div>
 
                 {/* Body Meta */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-600">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>Placed on {formatDate(order.orderDate)}</span>
+                    <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Ordered on {formatDate(order.orderDate)}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>Payment: {order.payment?.paymentMethod || "Standard"}</span>
+                    <CreditCard className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Payment: {order.payment?.paymentMethod || "Standard Payment"}</span>
                   </div>
 
                   <div>
                     <span className="font-semibold text-slate-800">
-                      {order.orderItems?.length || 0} product(s) in order
+                      {order.orderItems?.length || 0} item(s) in this order
                     </span>
                   </div>
                 </div>
 
-                {/* Items preview preview */}
+                {/* Items Preview */}
                 {order.orderItems && order.orderItems.length > 0 && (
-                  <div className="bg-slate-50 rounded-2xl p-4 flex flex-wrap items-center gap-3 text-xs">
+                  <div className="bg-slate-50 rounded-lg p-3 flex flex-wrap items-center gap-2 text-xs">
                     {order.orderItems.map((item) => (
                       <div
                         key={item.orderItemId}
-                        className="bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 font-medium truncate max-w-xs"
+                        className="bg-white px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 font-medium truncate max-w-xs text-[11px]"
                       >
                         {item.quantity}x {item.product?.productName || "Product"}
                       </div>

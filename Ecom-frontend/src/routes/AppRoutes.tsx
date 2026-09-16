@@ -33,10 +33,11 @@ const AdminDashboardPage = lazy(() => import("@/pages/admin/AdminDashboardPage")
 const AdminProductsPage = lazy(() => import("@/pages/admin/AdminProductsPage"));
 const AdminCategoriesPage = lazy(() => import("@/pages/admin/AdminCategoriesPage"));
 const AdminOrdersPage = lazy(() => import("@/pages/admin/AdminOrdersPage"));
+const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
 
 const PageLoader = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600" />
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
   </div>
 );
 
@@ -60,6 +61,7 @@ export const AppRoutes: React.FC = () => {
             <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+            <Route path="/account" element={<ProfilePage />} />
             <Route path="/account/addresses" element={<AddressesPage />} />
             <Route path="/account/profile" element={<ProfilePage />} />
           </Route>
@@ -75,6 +77,7 @@ export const AppRoutes: React.FC = () => {
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
           </Route>
         </Route>
       </Routes>

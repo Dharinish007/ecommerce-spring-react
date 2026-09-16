@@ -33,6 +33,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   } = product;
 
   const isAvailable = quantity > 0;
+  const isLowStock = isAvailable && quantity <= 5;
   const imageUrl = resolveProductImageUrl(image);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -77,11 +78,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <div className="group relative flex flex-col h-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 hover:-translate-y-1">
+    <div className="group relative flex flex-col h-full bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-200">
       {/* Image Container */}
       <Link
         to={`/products/${productId}`}
-        className="relative h-56 bg-slate-50 flex items-center justify-center p-6 overflow-hidden cursor-pointer"
+        className="relative h-52 bg-slate-50 flex items-center justify-center p-4 overflow-hidden cursor-pointer"
         tabIndex={-1}
       >
         <img
@@ -89,26 +90,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           alt={productName}
           onError={handleImageError}
           loading="lazy"
-          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
         />
 
         {/* Stock Badge */}
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-2.5 left-2.5">
           <span
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase shadow-xs ${
-              isAvailable
-                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                : "bg-red-100 text-red-800 border border-red-200"
+            className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase shadow-xs ${
+              !isAvailable
+                ? "bg-red-100 text-red-800 border border-red-200"
+                : isLowStock
+                ? "bg-amber-100 text-amber-900 border border-amber-300"
+                : "bg-emerald-100 text-emerald-800 border border-emerald-200"
             }`}
           >
-            {isAvailable ? "In Stock" : "Out of Stock"}
+            {!isAvailable ? "Out of Stock" : isLowStock ? `Only ${quantity} left` : "In Stock"}
           </span>
         </div>
 
         {/* Discount Badge */}
         {discount > 0 && (
-          <div className="absolute top-3 right-3">
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-red-600 text-white shadow-xs">
+          <div className="absolute top-2.5 right-2.5">
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-red-600 text-white shadow-xs">
               {formatDiscount(discount)}
             </span>
           </div>
@@ -116,38 +119,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </Link>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-1">
+      <div className="p-4 flex flex-col flex-1">
         {categoryName && (
-          <span className="text-[11px] font-bold text-cyan-600 uppercase tracking-wider mb-1">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
             {categoryName}
           </span>
         )}
 
         <Link
           to={`/products/${productId}`}
-          className="text-base font-bold text-slate-900 group-hover:text-cyan-600 transition-colors line-clamp-2 leading-snug cursor-pointer mb-2"
+          className="text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug cursor-pointer mb-1.5"
         >
           {productName}
         </Link>
 
-        <p className="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">
+        <p className="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">
           {description}
         </p>
 
         {/* Price & Action Section */}
-        <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+        <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
           <div>
             {specialPrice && specialPrice < price ? (
-              <div className="flex flex-col">
-                <span className="text-xs text-slate-400 line-through font-medium leading-none">
+              <div className="flex flex-col leading-none">
+                <span className="text-[11px] text-slate-400 line-through font-medium">
                   {formatPrice(price)}
                 </span>
-                <span className="text-lg font-black text-emerald-600 leading-tight">
+                <span className="text-base font-extrabold text-slate-950 mt-0.5">
                   {formatPrice(specialPrice)}
                 </span>
               </div>
             ) : (
-              <span className="text-lg font-black text-slate-900 leading-tight">
+              <span className="text-base font-extrabold text-slate-950">
                 {formatPrice(price)}
               </span>
             )}
@@ -158,27 +161,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             disabled={!isAvailable || isAdding}
             aria-label={`Add ${productName} to cart`}
             className={`
-              inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 shadow-xs
+              inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-xs
               ${
                 justAdded
                   ? "bg-emerald-600 text-white"
                   : isAvailable
-                  ? "bg-slate-900 hover:bg-cyan-600 text-white active:scale-95"
-                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  ? "bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white active:scale-95"
+                  : "bg-slate-100 text-slate-400 cursor-not-allowed"
               }
             `}
           >
             {isAdding ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : justAdded ? (
               <>
-                <Check className="w-4 h-4" />
+                <Check className="w-3.5 h-3.5" />
                 <span>Added</span>
               </>
             ) : (
               <>
-                <ShoppingBag className="w-4 h-4" />
-                <span>{isAvailable ? "Add" : "Sold"}</span>
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>{isAvailable ? "Add" : "Sold Out"}</span>
               </>
             )}
           </button>

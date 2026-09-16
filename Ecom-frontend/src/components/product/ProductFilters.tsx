@@ -1,6 +1,6 @@
 import React from "react";
 import { CategoryDTO } from "@/types/category.types";
-import { Filter, X, ArrowUpDown } from "lucide-react";
+import { Filter, X, ArrowUpDown, Tag } from "lucide-react";
 
 export interface ProductFiltersProps {
   categories: CategoryDTO[];
@@ -31,13 +31,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   const hasActiveFilters = Boolean(selectedCategory);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col gap-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col gap-5">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-cyan-600" />
-          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-            Filter & Sort
+          <Filter className="w-4 h-4 text-amber-600" />
+          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            Filter &amp; Sort
           </h3>
         </div>
         {hasActiveFilters && (
@@ -52,19 +52,19 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
       </div>
 
       {/* Sort Selector */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label
           htmlFor="catalog-sort"
-          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600"
+          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700"
         >
-          <ArrowUpDown className="w-3.5 h-3.5" />
+          <ArrowUpDown className="w-3.5 h-3.5 text-slate-500" />
           <span>Sort By</span>
         </label>
         <select
           id="catalog-sort"
           value={currentSortKey}
           onChange={handleSortSelect}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer"
+          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
         >
           <option value="productId:desc">Newest Arrivals</option>
           <option value="price:asc">Price: Low to High</option>
@@ -76,19 +76,20 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       {/* Category List */}
       <div className="space-y-2">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-600">
-          Categories
+        <div className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-slate-700">
+          <Tag className="w-3.5 h-3.5 text-slate-500" />
+          <span>Department</span>
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
           <button
             onClick={() => onSelectCategory(undefined)}
-            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
+            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
               !selectedCategory
-                ? "bg-cyan-50 text-cyan-800 font-bold border border-cyan-200"
+                ? "bg-amber-50 text-amber-900 font-bold border border-amber-300"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             }`}
           >
-            <span>All Categories</span>
+            <span>All Departments</span>
           </button>
 
           {categories.map((cat) => {
@@ -97,13 +98,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
               <button
                 key={cat.categoryId}
                 onClick={() => onSelectCategory(cat.categoryId)}
-                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
+                className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
                   isSelected
-                    ? "bg-cyan-50 text-cyan-800 font-bold border border-cyan-200"
+                    ? "bg-amber-50 text-amber-900 font-bold border border-amber-300"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
-                <span>{cat.categoryName}</span>
+                <span className="truncate">{cat.categoryName}</span>
               </button>
             );
           })}

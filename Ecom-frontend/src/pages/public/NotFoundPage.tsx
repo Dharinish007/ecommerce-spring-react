@@ -11,7 +11,7 @@ export const NotFoundPage: React.FC = () => {
       <EmptyState
         title="404 — Page Not Found"
         description="The page or resource you are looking for might have been moved, removed, or is temporarily unavailable."
-        icon={<HelpCircle className="w-8 h-8 text-cyan-600" />}
+        icon={<HelpCircle className="w-8 h-8 text-amber-500" />}
         actionLabel="Back to Home"
         onAction={() => navigate("/")}
       />

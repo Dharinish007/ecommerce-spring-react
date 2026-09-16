@@ -37,16 +37,16 @@ export const ProfilePage: React.FC = () => {
       </div>
 
       {/* Profile Overview Card */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
-          <div className="w-16 h-16 rounded-2xl bg-slate-900 text-cyan-400 font-black text-2xl flex items-center justify-center uppercase shadow-md">
+          <div className="w-16 h-16 rounded-2xl bg-slate-900 text-amber-400 font-black text-2xl flex items-center justify-center uppercase shadow-sm">
             {user.username.charAt(0)}
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-bold text-slate-900">{user.username}</h2>
               {isAdmin ? (
-                <Badge variant="info">ADMINISTRATOR</Badge>
+                <Badge variant="warning">ADMINISTRATOR</Badge>
               ) : (
                 <Badge variant="neutral">VERIFIED CUSTOMER</Badge>
               )}
@@ -55,7 +55,7 @@ export const ProfilePage: React.FC = () => {
               <Mail className="w-3.5 h-3.5 text-slate-400" />
               <span>{user.email}</span>
             </div>
-            <p className="text-[11px] text-slate-400">User Account ID #{user.id}</p>
+            <p className="text-[11px] text-slate-400">Angadi Customer ID #{user.id}</p>
           </div>
         </div>
 
@@ -74,42 +74,42 @@ export const ProfilePage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Link
           to="/orders"
-          className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs hover:border-cyan-500 hover:shadow-lg transition-all group"
+          className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-amber-400 hover:shadow-md transition-all group"
         >
-          <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <Package className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-600 transition-colors">
-            My Orders
+          <h3 className="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
+            Your Orders
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Check live shipment status and view previous orders
+            Track packages, review purchase history and view invoices
           </p>
         </Link>
 
         <Link
           to="/account/addresses"
-          className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs hover:border-cyan-500 hover:shadow-lg transition-all group"
+          className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-amber-400 hover:shadow-md transition-all group"
         >
-          <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <MapPin className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-600 transition-colors">
+          <h3 className="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
             Delivery Addresses
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Add or edit saved shipping and billing locations
+            Manage your saved addresses for fast 1-click checkout
           </p>
         </Link>
 
         <Link
           to="/cart"
-          className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs hover:border-cyan-500 hover:shadow-lg transition-all group"
+          className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-amber-400 hover:shadow-md transition-all group"
         >
-          <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <ShoppingBag className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-bold text-slate-900 group-hover:text-cyan-600 transition-colors">
+          <h3 className="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
             Shopping Cart
           </h3>
           <p className="text-xs text-slate-500 mt-1">
@@ -120,22 +120,22 @@ export const ProfilePage: React.FC = () => {
 
       {/* Admin Quick Entry */}
       {isAdmin && (
-        <div className="bg-gradient-to-r from-slate-900 to-cyan-950 text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 border border-slate-800">
+        <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-6 border border-slate-800">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-cyan-400" />
-              <h3 className="text-lg font-bold">Administrator Privileges Active</h3>
+              <ShieldCheck className="w-5 h-5 text-amber-400" />
+              <h3 className="text-lg font-bold">Angadi Admin Console</h3>
             </div>
             <p className="text-xs text-slate-300 max-w-lg">
-              You possess elevated access rights to manage product listings, categories, and customer order statuses.
+              You possess administrator privileges to manage product catalog, categories, user roles, and order fulfillment.
             </p>
           </div>
 
           <Link
             to="/admin"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors shrink-0 shadow-md"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-colors shrink-0 shadow-sm"
           >
-            <span>Open Admin Dashboard</span>
+            <span>Open Admin Console</span>
           </Link>
         </div>
       )}

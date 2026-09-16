@@ -29,14 +29,14 @@ export const ToastContainer: React.FC = () => {
           success: <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />,
           error: <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />,
           warning: <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />,
-          info: <Info className="w-5 h-5 text-cyan-600 shrink-0" />,
+          info: <Info className="w-5 h-5 text-blue-600 shrink-0" />,
         };
 
         const borderMap = {
           success: "border-emerald-200 bg-emerald-50/95 text-emerald-950",
           error: "border-red-200 bg-red-50/95 text-red-950",
           warning: "border-amber-200 bg-amber-50/95 text-amber-950",
-          info: "border-cyan-200 bg-cyan-50/95 text-cyan-950",
+          info: "border-blue-200 bg-blue-50/95 text-blue-950",
         };
 
         return (

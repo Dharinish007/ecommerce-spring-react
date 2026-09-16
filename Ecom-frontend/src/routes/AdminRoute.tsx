@@ -11,7 +11,7 @@ export const AdminRoute: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />
       </div>
     );
   }
@@ -27,7 +27,7 @@ export const AdminRoute: React.FC = () => {
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <EmptyState
           title="Access Restricted"
-          description="You do not possess administrative permissions to access the enterprise backoffice. This area is reserved for ROLE_ADMIN credentials."
+          description="You do not possess administrative permissions to access the Angadi admin console. This area is reserved for verified administrator accounts."
           icon={<ShieldAlert className="w-8 h-8 text-red-600" />}
           actionLabel="Return to Storefront"
           onAction={() => window.location.replace("/")}

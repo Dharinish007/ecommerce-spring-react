@@ -27,7 +27,7 @@ export const AddressesPage: React.FC = () => {
     buildingName: "",
     city: "",
     state: "",
-    country: "USA",
+    country: "India",
     pincode: "",
   });
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -57,7 +57,7 @@ export const AddressesPage: React.FC = () => {
       buildingName: "",
       city: "",
       state: "",
-      country: "USA",
+      country: "India",
       pincode: "",
     });
     setFormErrors({});
@@ -130,15 +130,24 @@ export const AddressesPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb" className="text-xs text-slate-500 flex items-center gap-1.5">
+        <a href="/" className="hover:text-slate-900 transition-colors">Home</a>
+        <span>/</span>
+        <a href="/account/profile" className="hover:text-slate-900 transition-colors">Account</a>
+        <span>/</span>
+        <span className="text-slate-900 font-semibold">Addresses</span>
+      </nav>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Saved Delivery Addresses
+            Your Delivery Addresses
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Manage shipping locations for quick multi-step checkout
+            Manage your saved residential and commercial delivery locations
           </p>
         </div>
 
@@ -158,8 +167,8 @@ export const AddressesPage: React.FC = () => {
         <ErrorState message={error} onRetry={loadAddresses} />
       ) : addresses.length === 0 ? (
         <EmptyState
-          title="No addresses recorded yet"
-          description="Save your home, office, or client delivery locations for rapid order fulfillment."
+          title="No delivery addresses saved"
+          description="Save your home, apartment, or office delivery address for fast 1-click checkout across Angadi."
           icon={<MapPin className="w-8 h-8 text-slate-400" />}
           actionLabel="Add First Address"
           onAction={openCreateModal}
@@ -169,11 +178,11 @@ export const AddressesPage: React.FC = () => {
           {addresses.map((addr) => (
             <div
               key={addr.addressId}
-              className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors"
+              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between hover:border-amber-400 hover:shadow-md transition-all"
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2 font-bold text-slate-900">
-                  <Home className="w-4 h-4 text-cyan-600 shrink-0" />
+                  <Home className="w-4 h-4 text-amber-600 shrink-0" />
                   <span className="truncate">{addr.buildingName}</span>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">{addr.street}</p>
@@ -186,7 +195,7 @@ export const AddressesPage: React.FC = () => {
               <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   onClick={() => openEditModal(addr)}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-cyan-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-amber-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Edit</span>
@@ -213,22 +222,22 @@ export const AddressesPage: React.FC = () => {
       >
         <form onSubmit={handleSaveAddress} className="space-y-4">
           <Input
-            label="Building / Apartment Name"
+            label="Flat / House / Building Name"
             required
             value={formData.buildingName}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, buildingName: e.target.value }))
             }
-            placeholder="e.g. Skyline Tower, Apt 4B"
+            placeholder="e.g. Flat 402, Shanti Heights"
             error={formErrors.buildingName}
           />
 
           <Input
-            label="Street Address"
+            label="Street Address / Area / Locality"
             required
             value={formData.street}
             onChange={(e) => setFormData((prev) => ({ ...prev, street: e.target.value }))}
-            placeholder="e.g. 1044 Tech Park Boulevard"
+            placeholder="e.g. 14th Main, HSR Layout, Sector 2"
             error={formErrors.street}
           />
 
@@ -238,7 +247,7 @@ export const AddressesPage: React.FC = () => {
               required
               value={formData.city}
               onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-              placeholder="e.g. San Jose"
+              placeholder="e.g. Bengaluru"
               error={formErrors.city}
             />
 
@@ -247,18 +256,18 @@ export const AddressesPage: React.FC = () => {
               required
               value={formData.state}
               onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
-              placeholder="e.g. CA"
+              placeholder="e.g. Karnataka"
               error={formErrors.state}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="6-Digit Pincode"
+              label="6-Digit PIN Code"
               required
               value={formData.pincode}
               onChange={(e) => setFormData((prev) => ({ ...prev, pincode: e.target.value }))}
-              placeholder="e.g. 951234"
+              placeholder="e.g. 560102"
               error={formErrors.pincode}
             />
 
@@ -267,7 +276,7 @@ export const AddressesPage: React.FC = () => {
               required
               value={formData.country}
               onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value }))}
-              placeholder="e.g. USA"
+              placeholder="e.g. India"
             />
           </div>
 
