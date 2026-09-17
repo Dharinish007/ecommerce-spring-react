@@ -29,15 +29,7 @@ public class OrderController {
     public ResponseEntity<OrderDTO> orderProducts(@PathVariable String paymentMethod,
                                                   @Valid @RequestBody OrderRequestDTO orderRequestDTO) {
         String emailId = authUtil.loggedInEmail();
-        OrderDTO order = orderService.placeOrder(
-                emailId,
-                orderRequestDTO.getAddressId(),
-                paymentMethod,
-                orderRequestDTO.getPgName(),
-                orderRequestDTO.getPgPaymentId(),
-                orderRequestDTO.getPgStatus(),
-                orderRequestDTO.getPgResponseMessage()
-        );
+        OrderDTO order = orderService.placeOrder(emailId, orderRequestDTO, paymentMethod);
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
 

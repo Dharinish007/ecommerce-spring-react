@@ -47,6 +47,9 @@ public class Order {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
+    @Column(name = "shipping_fee", nullable = false, precision = 10, scale = 2)
+    private BigDecimal shippingFee = BigDecimal.ZERO;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus = OrderStatus.PENDING;

@@ -33,6 +33,7 @@ export interface OrderDTO {
   orderDate: string;
   payment?: PaymentDTO;
   totalAmount: number;
+  shippingFee?: number;
   orderStatus: OrderStatus;
   addressId?: number;
   address?: AddressDTO;
@@ -54,6 +55,7 @@ export interface OrderRequestDTO {
   pgPaymentId?: string;
   pgStatus?: string;
   pgResponseMessage?: string;
+  simulateFailure?: boolean;
 }
 
 export interface OrderStatusUpdateDTO {

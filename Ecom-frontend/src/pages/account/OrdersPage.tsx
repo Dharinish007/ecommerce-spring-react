@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ordersApi from "@/api/orders.api";
+import { extractErrorMessage } from "@/api/client";
 import { OrderDTO, OrderResponse, OrderStatus } from "@/types/order.types";
 import { formatPrice, formatDate } from "@/utils/formatters";
 import Badge from "@/components/common/Badge";
@@ -26,7 +27,7 @@ export const OrdersPage: React.FC = () => {
       setOrderData(data);
       setCurrentPage(page);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load order history.";
+      const msg = extractErrorMessage(err, "Failed to load order history.");
       setError(msg);
     } finally {
       setIsLoading(false);

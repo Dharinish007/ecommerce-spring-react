@@ -2,9 +2,12 @@ package com.ecommerce.project.service;
 
 import com.ecommerce.project.model.OrderStatus;
 import com.ecommerce.project.payload.OrderDTO;
+import com.ecommerce.project.payload.OrderRequestDTO;
 import com.ecommerce.project.payload.OrderResponse;
 
 public interface OrderService {
+    OrderDTO placeOrder(String emailId, OrderRequestDTO orderRequestDTO, String paymentMethodPath);
+
     OrderDTO placeOrder(String emailId, Long addressId, String paymentMethod, String pgName, String pgPaymentId, String pgStatus, String pgResponseMessage);
 
     OrderDTO getOrder(String emailId, Long orderId);

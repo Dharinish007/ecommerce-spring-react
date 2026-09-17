@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { CartDTO, CartState } from "@/types/cart.types";
 import cartApi from "@/api/cart.api";
 import { extractErrorMessage } from "@/api/client";
+import { logout, sessionExpired } from "./authSlice";
 
 const initialState: CartState = {
   cart: null,
@@ -132,6 +133,20 @@ const cartSlice = createSlice({
     builder.addCase(removeFromCart.rejected, (state, action) => {
       state.isUpdating = false;
       state.error = action.payload || "Failed to remove item.";
+    });
+
+    // Reset cart on logout and session expiration
+    builder.addCase(logout.fulfilled, (state) => {
+      state.cart = null;
+      state.isLoading = false;
+      state.isUpdating = false;
+      state.error = null;
+    });
+    builder.addCase(sessionExpired, (state) => {
+      state.cart = null;
+      state.isLoading = false;
+      state.isUpdating = false;
+      state.error = null;
     });
   },
 });

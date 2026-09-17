@@ -20,6 +20,7 @@ public class OrderDTO {
     private LocalDateTime orderDate;
     private PaymentDTO payment;
     private BigDecimal totalAmount = BigDecimal.ZERO;
+    private BigDecimal shippingFee = BigDecimal.ZERO;
     private OrderStatus orderStatus;
     private Long addressId;
     private AddressDTO address;

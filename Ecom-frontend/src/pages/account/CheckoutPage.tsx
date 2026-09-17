@@ -7,6 +7,7 @@ import addressApi from "@/api/address.api";
 import ordersApi from "@/api/orders.api";
 import { AddressDTO } from "@/types/address.types";
 import { OrderRequestDTO } from "@/types/order.types";
+import { extractErrorMessage } from "@/api/client";
 import { formatPrice } from "@/utils/formatters";
 import { resolveProductImageUrl, handleImageError } from "@/utils/imageUtils";
 import Button from "@/components/common/Button";
@@ -35,6 +36,7 @@ export const CheckoutPage: React.FC = () => {
   const [addresses, setAddresses] = useState<AddressDTO[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("COD");
+  const [simulatePaymentFailure, setSimulatePaymentFailure] = useState<boolean>(false);
   const [isAddressesLoading, setIsAddressesLoading] = useState(true);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
@@ -122,7 +124,7 @@ export const CheckoutPage: React.FC = () => {
         })
       );
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save address.";
+      const msg = extractErrorMessage(err, "Failed to save address.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsSavingAddress(false);
@@ -130,6 +132,7 @@ export const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
+    if (isPlacingOrder) return;
     setOrderError(null);
 
     if (!selectedAddressId) {
@@ -147,15 +150,14 @@ export const CheckoutPage: React.FC = () => {
       const orderRequest: OrderRequestDTO = {
         addressId: selectedAddressId,
         paymentMethod,
-        pgName: paymentMethod === "COD" ? "Cash On Delivery" : "Angadi Pay",
+        pgName: paymentMethod === "COD" ? "Cash On Delivery" : "Angadi Pay (Demo)",
         pgPaymentId: `ANGADI-TXN-${Date.now()}`,
-        pgStatus: "SUCCESS",
-        pgResponseMessage: "Payment confirmed successfully",
+        simulateFailure: simulatePaymentFailure,
       };
 
       const order = await ordersApi.placeOrder(paymentMethod, orderRequest);
 
-      // Clear cart locally
+      // Clear cart locally upon verified order creation
       dispatch(clearCartState());
       dispatch(
         addToast({
@@ -166,8 +168,7 @@ export const CheckoutPage: React.FC = () => {
 
       navigate(`/order-success/${order.orderId}`);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to place order. Please review item stock.";
+      const msg = extractErrorMessage(err, "Failed to place order. Please review item stock.");
       setOrderError(msg);
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
@@ -350,6 +351,27 @@ export const CheckoutPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-900">Credit / Debit Card</span>
                 <span className="text-[10px] text-slate-500">Visa, Mastercard, RuPay</span>
               </div>
+            </div>
+
+            {/* Demo Payment Settings */}
+            <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs bg-slate-50 p-3 rounded-lg">
+              <div>
+                <span className="font-semibold text-slate-800 block">Demo Payment Environment</span>
+                <span className="text-[11px] text-slate-500">
+                  Orders are verified by backend demo processor. Test rollback behavior with the toggle.
+                </span>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer select-none shrink-0">
+                <input
+                  type="checkbox"
+                  checked={simulatePaymentFailure}
+                  onChange={(e) => setSimulatePaymentFailure(e.target.checked)}
+                  className="rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                />
+                <span className={`text-xs font-semibold ${simulatePaymentFailure ? "text-red-700" : "text-slate-600"}`}>
+                  Simulate Failure
+                </span>
+              </label>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import ordersApi from "@/api/orders.api";
+import { extractErrorMessage } from "@/api/client";
 import { OrderDTO, OrderStatus } from "@/types/order.types";
 import { formatPrice, formatDate } from "@/utils/formatters";
 import { resolveProductImageUrl, handleImageError } from "@/utils/imageUtils";
@@ -33,7 +34,7 @@ export const OrderDetailPage: React.FC = () => {
       const data = await ordersApi.getOrderById(Number(orderId));
       setOrder(data);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load order details.";
+      const msg = extractErrorMessage(err, "Failed to load order details.");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -305,10 +306,41 @@ export const OrderDetailPage: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span>Payment Status</span>
-                <span className="font-bold text-emerald-700">
-                  {order.payment?.pgStatus || "CONFIRMED"}
+                <span
+                  className={`font-bold ${
+                    order.payment?.pgStatus === "SUCCESS"
+                      ? "text-emerald-700"
+                      : order.payment?.pgStatus === "PENDING"
+                      ? "text-amber-700"
+                      : "text-red-700"
+                  }`}
+                >
+                  {order.payment?.pgStatus === "SUCCESS"
+                    ? "PAID"
+                    : order.payment?.pgStatus === "PENDING"
+                    ? "PENDING (COD)"
+                    : order.payment?.pgStatus || "CONFIRMED"}
                 </span>
               </div>
+
+              {/* Price Breakdown */}
+              <div className="border-t border-slate-100 pt-2 space-y-1.5 text-[11px]">
+                <div className="flex justify-between text-slate-500">
+                  <span>Items Subtotal</span>
+                  <span className="font-medium text-slate-800">
+                    {formatPrice(order.totalAmount - (order.shippingFee ?? 0))}
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-500">
+                  <span>Delivery Fee</span>
+                  <span className="font-medium text-slate-800">
+                    {!order.shippingFee || order.shippingFee === 0
+                      ? "FREE"
+                      : formatPrice(order.shippingFee)}
+                  </span>
+                </div>
+              </div>
+
               <div className="border-t border-slate-100 pt-2 flex justify-between items-baseline font-bold text-slate-900">
                 <span className="text-sm">Grand Total</span>
                 <span className="text-lg font-black text-slate-950">
