@@ -1,4 +1,4 @@
-# Angadi (ಅಂಗಡಿ) - Full-Stack E-Commerce Learning Platform
+# Angadi (அங்காடி) - Full-Stack E-Commerce Learning Platform
 
 A full-stack e-commerce web application built with **Spring Boot 3** and **React 19**, designed to showcase clean, robust engineering patterns for learning and development: secure HttpOnly-cookie JWT authentication, role-based access control (RBAC), authoritative cart and checkout calculations, atomic inventory deduction, Flyway schema migrations, and a responsive modern storefront.
 
