@@ -322,4 +322,54 @@ class OrderServiceCheckoutTest {
         assertEquals(PaymentStatus.FAILED.name(), payment.getPgStatus());
         verify(paymentRepository, times(1)).save(payment);
     }
+
+    // --- 6. Historical Order Data Snapshot Tests ---
+
+    @Test
+    void testPlaceOrder_PreservesHistoricalProductSnapshotOnOrderItemAndFallbackOnDeletedProduct() {
+        Product originalProduct = createProduct(1L, "Original Vintage Jacket", 5, new BigDecimal("1200.00"), new BigDecimal("1200.00"));
+        originalProduct.setImage("jacket.png");
+        Cart cart = createCartWithItem(originalProduct, 1);
+
+        when(cartRepository.findCartByEmailForUpdate("buyer@example.com")).thenReturn(Optional.of(cart));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(originalProduct));
+        when(productRepository.deductStock(1L, 1)).thenReturn(1);
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
+
+        Order savedOrderRef = new Order();
+        when(orderRepository.save(any(Order.class))).thenAnswer(i -> {
+            Order o = i.getArgument(0);
+            o.setOrderId(2001L);
+            savedOrderRef.setOrderId(2001L);
+            savedOrderRef.setEmail(o.getEmail());
+            savedOrderRef.setTotalAmount(o.getTotalAmount());
+            savedOrderRef.setOrderStatus(o.getOrderStatus());
+            savedOrderRef.setOrderItems(o.getOrderItems());
+            return o;
+        });
+
+        OrderRequestDTO request = new OrderRequestDTO(10L, "UPI", null, null, null, null, false);
+        OrderDTO result = orderService.placeOrder("buyer@example.com", request, "UPI");
+
+        assertNotNull(result);
+        assertEquals(1, result.getOrderItems().size());
+        assertEquals("Original Vintage Jacket", result.getOrderItems().get(0).getProduct().getProductName());
+        assertEquals("jacket.png", result.getOrderItems().get(0).getProduct().getImage());
+
+        // Now simulate the product being renamed in the store catalog
+        originalProduct.setProductName("Updated Modern Jacket 2026");
+        // Verify that the order's historical snapshot still reports the original product name at time of purchase
+        OrderDTO historicalView = orderService.getOrder("buyer@example.com", 2001L);
+        when(orderRepository.findById(2001L)).thenReturn(Optional.of(savedOrderRef));
+        when(testUser.getRoles()).thenReturn(Set.of(new Role(AppRole.ROLE_USER)));
+        historicalView = orderService.getOrder("buyer@example.com", 2001L);
+        assertEquals("Original Vintage Jacket", historicalView.getOrderItems().get(0).getProduct().getProductName());
+
+        // Now simulate the product being unlinked/deleted (product = null on orderItem)
+        savedOrderRef.getOrderItems().get(0).setProduct(null);
+        OrderDTO fallbackView = orderService.getOrder("buyer@example.com", 2001L);
+        assertNotNull(fallbackView);
+        assertEquals("Original Vintage Jacket", fallbackView.getOrderItems().get(0).getProduct().getProductName());
+        assertEquals("jacket.png", fallbackView.getOrderItems().get(0).getProduct().getImage());
+    }
 }

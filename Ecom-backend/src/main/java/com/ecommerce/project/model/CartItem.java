@@ -8,10 +8,14 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @Setter
-@Table(name = "cart_items", indexes = {
-        @Index(name = "idx_cart_item_cart_id", columnList = "cart_id"),
-        @Index(name = "idx_cart_item_product_id", columnList = "product_id")
-})
+@Table(name = "cart_items",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_cart_item_cart_product", columnNames = {"cart_id", "product_id"})
+        },
+        indexes = {
+                @Index(name = "idx_cart_item_cart_id", columnList = "cart_id"),
+                @Index(name = "idx_cart_item_product_id", columnList = "product_id")
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"cart", "product"})

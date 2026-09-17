@@ -89,6 +89,8 @@ public class OrderServiceImpl implements OrderService {
                     itemDTO.setProduct(productDTO);
                 } else {
                     ProductDTO productDTO = new ProductDTO();
+                    productDTO.setProductName(item.getProductName() != null ? item.getProductName() : "Product");
+                    productDTO.setImage(item.getProductImage() != null ? item.getProductImage() : "default.png");
                     productDTO.setPrice(item.getOrderedProductPrice());
                     productDTO.setSpecialPrice(item.getOrderedProductPrice());
                     itemDTO.setProduct(productDTO);
@@ -220,6 +222,8 @@ public class OrderServiceImpl implements OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(savedOrder);
             orderItem.setProduct(product);
+            orderItem.setProductName(product.getProductName());
+            orderItem.setProductImage(product.getImage());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setDiscount(product.getDiscount() != null ? product.getDiscount() : BigDecimal.ZERO);
             orderItem.setOrderedProductPrice(unitPrice);

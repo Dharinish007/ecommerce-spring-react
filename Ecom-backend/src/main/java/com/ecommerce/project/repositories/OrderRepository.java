@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findByEmail(String email, Pageable pageable);
 
-    Optional<Order> findByOrderIdAndEmail(Long orderId, String email);
+    boolean existsByAddressAddressId(Long addressId);
 }
