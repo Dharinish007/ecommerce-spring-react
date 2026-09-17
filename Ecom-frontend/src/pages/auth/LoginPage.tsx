@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { login, clearAuthError } from "@/store/slices/authSlice";
@@ -13,7 +13,13 @@ export const LoginPage: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const redirectUrl = searchParams.get("redirect") || "/";
-  const { isLoading, error } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isLoading, error } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(redirectUrl, { replace: true });
+    }
+  }, [isAuthenticated, navigate, redirectUrl]);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

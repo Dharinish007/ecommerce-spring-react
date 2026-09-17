@@ -2,8 +2,14 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import { registerUnauthorizedHandler } from "./api/client";
+import { sessionExpired } from "./store/slices/authSlice";
 import App from "./App";
 import "./index.css";
+
+registerUnauthorizedHandler(() => {
+  store.dispatch(sessionExpired());
+});
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

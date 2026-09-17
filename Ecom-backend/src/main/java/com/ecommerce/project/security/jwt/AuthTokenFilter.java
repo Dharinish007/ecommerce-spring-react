@@ -34,14 +34,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
-
-        // Skip JWT filter for H2 Console
-        if (path.startsWith("/h2-console")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
             String jwt = parseJwt(request);
 
@@ -68,10 +60,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromHeader(request);
+        String jwt = jwtUtils.getJwtFromCookies(request);
         if (jwt != null) {
             return jwt;
         }
-        return jwtUtils.getJwtFromCookies(request);
+        return jwtUtils.getJwtFromHeader(request);
     }
 }

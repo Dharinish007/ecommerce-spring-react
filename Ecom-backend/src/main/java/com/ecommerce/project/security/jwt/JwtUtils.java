@@ -7,6 +7,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -24,8 +25,18 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${spring.app.jwtSecret:YXRzdG9uZWJlZ2FuZHJld2ZhbW91c3NvbGRpZXJjbGltYmNhc2VtaWNlZmxpZ2h0bG8=}")
+    @Value("${spring.app.jwtSecret:}")
     private String jwtSecret;
+
+    private SecretKey defaultSecretKey;
+
+    @PostConstruct
+    public void init() {
+        if (jwtSecret == null || jwtSecret.trim().isEmpty()) {
+            logger.warn("SECURITY WARNING: No JWT_SECRET configured. Generating an ephemeral in-memory signing key for development. Set JWT_SECRET in production!");
+            this.defaultSecretKey = Jwts.SIG.HS256.key().build();
+        }
+    }
 
     @Value("${spring.app.jwtExpirationMs:86400000}")
     private int jwtExpirationMs;
@@ -87,7 +98,13 @@ public class JwtUtils {
     }
 
     private SecretKey key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        if (jwtSecret != null && !jwtSecret.trim().isEmpty()) {
+            return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        }
+        if (defaultSecretKey == null) {
+            defaultSecretKey = Jwts.SIG.HS256.key().build();
+        }
+        return defaultSecretKey;
     }
 
     public boolean validateJwtToken(String authToken) {

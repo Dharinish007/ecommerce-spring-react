@@ -6,9 +6,9 @@ import { ShieldAlert } from "lucide-react";
 
 export const AdminRoute: React.FC = () => {
   const location = useLocation();
-  const { user, isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const { user, isAuthenticated, isInitialized, isLoading } = useAppSelector((state) => state.auth);
 
-  if (isLoading) {
+  if (!isInitialized || isLoading) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500" />

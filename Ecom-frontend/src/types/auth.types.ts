@@ -14,7 +14,6 @@ export interface UserInfoResponse {
   username: string;
   email: string;
   roles: string[];
-  jwtToken?: string;
 }
 
 export interface MessageResponse {
@@ -23,8 +22,8 @@ export interface MessageResponse {
 
 export interface AuthState {
   user: UserInfoResponse | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
 }

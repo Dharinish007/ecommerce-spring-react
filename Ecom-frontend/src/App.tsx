@@ -11,10 +11,7 @@ export const App: React.FC = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    const token = localStorage.getItem("sbecom_token");
-    if (token) {
-      dispatch(fetchCurrentUser());
-    }
+    dispatch(fetchCurrentUser());
   }, [dispatch]);
 
   useEffect(() => {
