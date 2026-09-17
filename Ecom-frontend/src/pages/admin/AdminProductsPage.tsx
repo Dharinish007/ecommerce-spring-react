@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import productsApi from "@/api/products.api";
 import categoriesApi from "@/api/categories.api";
 import adminApi from "@/api/admin.api";
+import { extractErrorMessage } from "@/api/client";
 import { ProductDTO, ProductResponse } from "@/types/product.types";
 import { CategoryDTO } from "@/types/category.types";
 import { formatPrice, formatDiscount } from "@/utils/formatters";
@@ -67,7 +68,7 @@ export const AdminProductsPage: React.FC = () => {
       setProductData(data);
       setCurrentPage(page);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load products.";
+      const msg = extractErrorMessage(err, "Failed to load products.");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -166,7 +167,7 @@ export const AdminProductsPage: React.FC = () => {
       setIsCreateModalOpen(false);
       loadProducts(0);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to create product.";
+      const msg = extractErrorMessage(err, "Failed to create product.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsSubmitting(false);
@@ -193,7 +194,7 @@ export const AdminProductsPage: React.FC = () => {
       setIsEditModalOpen(false);
       loadProducts(currentPage);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to update product.";
+      const msg = extractErrorMessage(err, "Failed to update product.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsSubmitting(false);
@@ -211,7 +212,7 @@ export const AdminProductsPage: React.FC = () => {
       setIsImageModalOpen(false);
       loadProducts(currentPage);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to upload product image.";
+      const msg = extractErrorMessage(err, "Failed to upload product image.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsSubmitting(false);
@@ -228,7 +229,7 @@ export const AdminProductsPage: React.FC = () => {
       dispatch(addToast({ type: "info", message: `Deleted product "${name}".` }));
       loadProducts(currentPage);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to delete product.";
+      const msg = extractErrorMessage(err, "Failed to delete product.");
       dispatch(addToast({ type: "error", message: msg }));
     }
   };

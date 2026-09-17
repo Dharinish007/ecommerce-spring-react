@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import adminApi, { AdminUserDTO } from "@/api/admin.api";
+import { extractErrorMessage } from "@/api/client";
 import { useAppDispatch } from "@/store/hooks";
 import { addToast } from "@/store/slices/uiSlice";
 import Button from "@/components/common/Button";
@@ -31,7 +32,7 @@ export const AdminUsersPage: React.FC = () => {
       const data = await adminApi.getAllUsers();
       setUsers(data);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load users.";
+      const msg = extractErrorMessage(err, "Failed to load users.");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -75,7 +76,7 @@ export const AdminUsersPage: React.FC = () => {
       setIsModalOpen(false);
       loadUsers();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to update user roles.";
+      const msg = extractErrorMessage(err, "Failed to update user roles.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsSaving(false);

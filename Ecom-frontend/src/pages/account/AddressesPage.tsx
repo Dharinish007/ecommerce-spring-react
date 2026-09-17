@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import addressApi from "@/api/address.api";
+import { extractErrorMessage } from "@/api/client";
 import { AddressDTO } from "@/types/address.types";
 import { useAppDispatch } from "@/store/hooks";
 import { addToast } from "@/store/slices/uiSlice";
@@ -39,7 +40,7 @@ export const AddressesPage: React.FC = () => {
       const data = await addressApi.getUserAddresses();
       setAddresses(data);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load saved addresses.";
+      const msg = extractErrorMessage(err, "Failed to load saved addresses.");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -108,7 +109,7 @@ export const AddressesPage: React.FC = () => {
       setIsModalOpen(false);
       loadAddresses();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save address.";
+      const msg = extractErrorMessage(err, "Failed to save address.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsSaving(false);
@@ -124,7 +125,7 @@ export const AddressesPage: React.FC = () => {
       dispatch(addToast({ type: "info", message: "Address removed." }));
       loadAddresses();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to delete address.";
+      const msg = extractErrorMessage(err, "Failed to delete address.");
       dispatch(addToast({ type: "error", message: msg }));
     }
   };

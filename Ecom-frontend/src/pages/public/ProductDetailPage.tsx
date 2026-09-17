@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import productsApi from "@/api/products.api";
+import { extractErrorMessage } from "@/api/client";
 import { ProductDTO } from "@/types/product.types";
 import { formatPrice, formatDiscount } from "@/utils/formatters";
 import { resolveProductImageUrl, handleImageError } from "@/utils/imageUtils";
@@ -60,7 +61,7 @@ export const ProductDetailPage: React.FC = () => {
           .catch(() => setRelatedProducts([]));
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load product details.";
+      const msg = extractErrorMessage(err, "Failed to load product details.");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -159,7 +160,7 @@ export const ProductDetailPage: React.FC = () => {
       );
       setTimeout(() => setIsSuccess(false), 2500);
     } catch (err: unknown) {
-      const msg = typeof err === "string" ? err : "Failed to add product to cart.";
+      const msg = typeof err === "string" ? err : extractErrorMessage(err, "Failed to add product to cart.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsAdding(false);
@@ -187,7 +188,7 @@ export const ProductDetailPage: React.FC = () => {
       ).unwrap();
       navigate("/checkout");
     } catch (err: unknown) {
-      const msg = typeof err === "string" ? err : "Failed to proceed to checkout.";
+      const msg = typeof err === "string" ? err : extractErrorMessage(err, "Failed to proceed to checkout.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsBuyingNow(false);

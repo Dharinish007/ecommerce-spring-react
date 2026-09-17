@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import adminApi from "@/api/admin.api";
+import { extractErrorMessage } from "@/api/client";
 import { OrderDTO, OrderResponse, OrderStatus } from "@/types/order.types";
 import { formatPrice, formatDate } from "@/utils/formatters";
 import { useAppDispatch } from "@/store/hooks";
@@ -32,7 +33,7 @@ export const AdminOrdersPage: React.FC = () => {
       setOrderData(data);
       setCurrentPage(page);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load orders.";
+      const msg = extractErrorMessage(err, "Failed to load orders.");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -55,8 +56,7 @@ export const AdminOrdersPage: React.FC = () => {
       );
       loadOrders(currentPage);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to update order status.";
+      const msg = extractErrorMessage(err, "Failed to update order status.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsUpdatingStatus(null);

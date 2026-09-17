@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import productsApi from "@/api/products.api";
 import categoriesApi from "@/api/categories.api";
+import { extractErrorMessage } from "@/api/client";
 import { ProductDTO, ProductResponse } from "@/types/product.types";
 import { CategoryDTO } from "@/types/category.types";
 import ProductCard from "@/components/product/ProductCard";
@@ -61,8 +62,7 @@ export const ProductsPage: React.FC = () => {
       }
       setProductData(res);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to load product catalog.";
+      const msg = extractErrorMessage(err, "Failed to load product catalog.");
       setError(msg);
       setProductData(null);
     } finally {

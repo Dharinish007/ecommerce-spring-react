@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import categoriesApi from "@/api/categories.api";
 import adminApi from "@/api/admin.api";
+import { extractErrorMessage } from "@/api/client";
 import { CategoryDTO, CategoryResponse } from "@/types/category.types";
 import { useAppDispatch } from "@/store/hooks";
 import { addToast } from "@/store/slices/uiSlice";
@@ -40,7 +41,7 @@ export const AdminCategoriesPage: React.FC = () => {
       setCategoryData(data);
       setCurrentPage(page);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load categories.";
+      const msg = extractErrorMessage(err, "Failed to load categories.");
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -86,7 +87,7 @@ export const AdminCategoriesPage: React.FC = () => {
       setIsModalOpen(false);
       loadCategories(currentPage);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save category.";
+      const msg = extractErrorMessage(err, "Failed to save category.");
       dispatch(addToast({ type: "error", message: msg }));
     } finally {
       setIsSubmitting(false);
@@ -107,7 +108,7 @@ export const AdminCategoriesPage: React.FC = () => {
       dispatch(addToast({ type: "info", message: `Deleted category "${name}".` }));
       loadCategories(currentPage);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to delete category.";
+      const msg = extractErrorMessage(err, "Failed to delete category.");
       dispatch(addToast({ type: "error", message: msg }));
     }
   };
