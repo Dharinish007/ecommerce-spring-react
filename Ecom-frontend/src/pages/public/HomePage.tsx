@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import productsApi from "@/api/products.api";
 import categoriesApi from "@/api/categories.api";
+import { extractErrorMessage } from "@/api/client";
 import { ProductDTO } from "@/types/product.types";
 import { CategoryDTO } from "@/types/category.types";
 import ProductCard from "@/components/product/ProductCard";
@@ -49,8 +50,7 @@ export const HomePage: React.FC = () => {
         .sort((a, b) => (b.discount || 0) - (a.discount || 0));
       setDiscountedProducts(deals.slice(0, 4));
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to connect to the Angadi product catalog.";
+      const msg = extractErrorMessage(err, "Failed to connect to the Angadi product catalog.");
       setError(msg);
     } finally {
       setIsLoading(false);

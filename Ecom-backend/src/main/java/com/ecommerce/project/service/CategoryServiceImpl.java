@@ -3,6 +3,7 @@ package com.ecommerce.project.service;
 import com.ecommerce.project.exception.APIException;
 import com.ecommerce.project.exception.ResourceNotFoundException;
 import com.ecommerce.project.model.Category;
+import com.ecommerce.project.model.Product;
 import com.ecommerce.project.payload.CategoryDTO;
 import com.ecommerce.project.payload.CategoryResponse;
 import com.ecommerce.project.repositories.CategoryRepository;
@@ -86,7 +87,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
-        Page<com.ecommerce.project.model.Product> productsInCategory =
+        Page<Product> productsInCategory =
                 productRepository.findByCategory(category, PageRequest.of(0, 1));
         if (productsInCategory.getTotalElements() > 0) {
             throw new APIException("Cannot delete category '" + category.getCategoryName() + "' as it contains "

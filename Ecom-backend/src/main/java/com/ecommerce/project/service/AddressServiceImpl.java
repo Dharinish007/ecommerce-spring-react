@@ -1,6 +1,5 @@
 package com.ecommerce.project.service;
 
-import com.ecommerce.project.exception.APIException;
 import com.ecommerce.project.exception.ResourceNotFoundException;
 import com.ecommerce.project.model.Address;
 import com.ecommerce.project.model.User;

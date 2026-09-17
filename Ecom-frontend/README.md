@@ -1,16 +1,30 @@
-# React + Vite
+# Angadi Frontend (React + Vite + TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This is the client-side single-page application for the **Angadi E-Commerce Platform**.
 
-Currently, two official plugins are available:
+## Tech Stack
+- **Framework:** React 19
+- **Build Tool:** Vite 8
+- **Language:** TypeScript 5.9
+- **State Management:** Redux Toolkit 2
+- **Routing:** React Router DOM 7
+- **Styling:** Tailwind CSS 4 & Lucide React icons
+- **API Client:** Axios with credentialed cookies & centralized error normalization
+- **Linter:** Oxlint
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Available Scripts
 
-## React Compiler
+### `npm run dev`
+Starts the development server with Hot Module Replacement (HMR) at `http://localhost:5173`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### `npm run build`
+Typechecks the TypeScript source code (`tsc`) and compiles production assets into `dist/`.
 
-## Expanding the Oxlint configuration
+### `npm run lint`
+Runs Oxlint across the project for fast JavaScript/TypeScript static analysis.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### `npm run preview`
+Locally previews the production build from the `dist/` directory.
+
+## Backend Connection
+The frontend connects to the Spring Boot REST API at `http://localhost:8080/api` (configured in `src/api/client.ts`). Ensure the backend service is running before accessing authenticated or dynamic features.
