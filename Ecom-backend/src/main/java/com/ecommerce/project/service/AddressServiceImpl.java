@@ -9,6 +9,7 @@ import com.ecommerce.project.repositories.AddressRepository;
 import com.ecommerce.project.repositories.UserRepository;
 import com.ecommerce.project.util.AuthUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,7 @@ public class AddressServiceImpl implements AddressService {
         boolean isAdmin = user.getRoles().stream()
                 .anyMatch(r -> r.getRoleName().name().equals("ROLE_ADMIN"));
         if (!isAdmin && (address.getUser() == null || !address.getUser().getUserId().equals(user.getUserId()))) {
-            throw new APIException("You are not authorized to access or modify this address.");
+            throw new AccessDeniedException("You are not authorized to access or modify this address.");
         }
     }
 

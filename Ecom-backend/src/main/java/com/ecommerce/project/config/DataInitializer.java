@@ -7,6 +7,7 @@ import com.ecommerce.project.repositories.RoleRepository;
 import com.ecommerce.project.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,18 @@ import java.util.*;
 public class DataInitializer implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
+
+    @Value("${app.seed.enabled:true}")
+    private boolean seedEnabled;
+
+    @Value("${app.seed.admin.password:admin123}")
+    private String seedAdminPassword;
+
+    @Value("${app.seed.seller.password:seller123}")
+    private String seedSellerPassword;
+
+    @Value("${app.seed.user.password:user123}")
+    private String seedUserPassword;
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
@@ -42,8 +55,13 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        logger.info("Initializing Angadi system data and development seed catalog...");
         initRoles();
+        if (!seedEnabled) {
+            logger.info("Seed data initialization is disabled (app.seed.enabled=false). Skipping default users and catalog.");
+            return;
+        }
+
+        logger.info("Initializing Angadi system data and development seed catalog...");
         initDefaultUsers();
         initCatalogData();
         logger.info("Angadi initialization completed successfully.");
@@ -66,28 +84,32 @@ public class DataInitializer implements CommandLineRunner {
         Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN).orElseThrow();
         Role sellerRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER).orElseThrow();
 
-        // 1. Default Admin: admin / admin123
+        if ("admin123".equals(seedAdminPassword)) {
+            logger.warn("SECURITY WARNING: Seed administrator account is using the default development password. Ensure seed data is disabled or custom credentials are supplied in production.");
+        }
+
+        // 1. Default Admin: admin
         if (!userRepository.existsByUserName("admin")) {
-            User admin = new User("admin", "admin@angadi.com", passwordEncoder.encode("admin123"));
+            User admin = new User("admin", "admin@angadi.com", passwordEncoder.encode(seedAdminPassword));
             admin.setRoles(Set.of(adminRole, userRole));
             userRepository.save(admin);
-            logger.info("Created default administrator: admin / admin123");
+            logger.info("Created default administrator account: admin");
         }
 
-        // 2. Default Seller: seller / seller123
+        // 2. Default Seller: seller
         if (!userRepository.existsByUserName("seller")) {
-            User seller = new User("seller", "seller@angadi.com", passwordEncoder.encode("seller123"));
+            User seller = new User("seller", "seller@angadi.com", passwordEncoder.encode(seedSellerPassword));
             seller.setRoles(Set.of(sellerRole, userRole));
             userRepository.save(seller);
-            logger.info("Created default seller: seller / seller123");
+            logger.info("Created default seller account: seller");
         }
 
-        // 3. Default Customer: john_doe / user123
+        // 3. Default Customer: john_doe
         if (!userRepository.existsByUserName("john_doe")) {
-            User user = new User("john_doe", "john.doe@example.com", passwordEncoder.encode("user123"));
+            User user = new User("john_doe", "john.doe@example.com", passwordEncoder.encode(seedUserPassword));
             user.setRoles(Set.of(userRole));
             userRepository.save(user);
-            logger.info("Created default customer: john_doe / user123");
+            logger.info("Created default customer account: john_doe");
         }
     }
 

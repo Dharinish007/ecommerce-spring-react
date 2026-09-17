@@ -13,6 +13,7 @@ import com.ecommerce.project.repositories.CartRepository;
 import com.ecommerce.project.repositories.ProductRepository;
 import com.ecommerce.project.util.AuthUtil;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -207,8 +208,8 @@ public class CartServiceImpl implements CartService {
         // Ownership check to prevent IDOR
         boolean isAdmin = user.getRoles().stream()
                 .anyMatch(r -> r.getRoleName().name().equals("ROLE_ADMIN"));
-        if (!isAdmin && !cart.getUser().getUserId().equals(user.getUserId())) {
-            throw new APIException("You are not authorized to modify this cart");
+        if (!isAdmin && (cart.getUser() == null || !cart.getUser().getUserId().equals(user.getUserId()))) {
+            throw new AccessDeniedException("You are not authorized to modify this cart");
         }
 
         CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cartId, productId);

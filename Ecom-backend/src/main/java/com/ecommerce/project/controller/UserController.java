@@ -11,6 +11,8 @@ import com.ecommerce.project.repositories.UserRepository;
 import com.ecommerce.project.security.response.MessageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
@@ -53,12 +55,19 @@ public class UserController {
 
     @PutMapping("/{userId}/roles")
     public ResponseEntity<MessageResponse> updateUserRoles(@PathVariable Long userId, @RequestBody Set<String> newRoles) {
+        if (newRoles == null || newRoles.isEmpty()) {
+            throw new APIException("Role set cannot be empty. At least one valid role must be specified.");
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
 
         Set<Role> roles = new HashSet<>();
         for (String roleStr : newRoles) {
-            switch (roleStr.toUpperCase()) {
+            if (roleStr == null || roleStr.trim().isEmpty()) {
+                throw new APIException("Role name cannot be empty.");
+            }
+            switch (roleStr.trim().toUpperCase()) {
                 case "ADMIN":
                 case "ROLE_ADMIN":
                     Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
@@ -71,13 +80,25 @@ public class UserController {
                             .orElseThrow(() -> new APIException("Role ROLE_SELLER not found"));
                     roles.add(sellerRole);
                     break;
-                default:
+                case "USER":
+                case "ROLE_USER":
                     Role defaultUserRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                             .orElseThrow(() -> new APIException("Role ROLE_USER not found"));
                     roles.add(defaultUserRole);
                     break;
+                default:
+                    throw new APIException("Invalid role: '" + roleStr + "'. Allowed roles are: ROLE_USER, ROLE_SELLER, ROLE_ADMIN");
             }
         }
+
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuth != null && currentAuth.getName().equals(user.getUserName())) {
+            boolean stillAdmin = roles.stream().anyMatch(r -> r.getRoleName() == AppRole.ROLE_ADMIN);
+            if (!stillAdmin) {
+                throw new APIException("Administrators cannot remove their own ADMIN role.");
+            }
+        }
+
         user.setRoles(roles);
         userRepository.save(user);
 
